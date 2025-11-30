@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitPlanner - Tu Compañero de Entrenamiento</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../static/css/main.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-custom" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item">
+                <i class="fas fa-dumbbell" style="color: var(--primary-red); margin-right: 10px;"></i>
+                <span class="title is-4">FitPlanner</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero hero-custom is-fullheight-with-navbar">
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <div class="columns is-vcentered">
+                    <div class="column is-6">
+                        <h1 class="hero-title">
+                            🏋️‍♂️ FitPlanner
+                        </h1>
+                        <p class="hero-subtitle">
+                            Tu compañero definitivo para gestionar rutinas de entrenamiento, 
+                            seguir tu progreso y alcanzar tus objetivos fitness de manera inteligente.
+                        </p>
+                        <div class="buttons is-centered">
+                            <a href="/login" class="button is-large btn-primary-custom">
+                                <span class="icon">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                </span>
+                                <span>Iniciar Sesión</span>
+                            </a>
+                            <a href="/register" class="button is-large btn-secondary-custom">
+                                <span class="icon">
+                                    <i class="fas fa-user-plus"></i>
+                                </span>
+                                <span>Registrarse</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="column is-6">
+                        <figure class="image">
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 20px; padding: 3rem; backdrop-filter: blur(10px);">
+                                <i class="fas fa-chart-line" style="font-size: 8rem; color: var(--white); opacity: 0.8;"></i>
+                            </div>
+                        </figure>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section section-custom">
+        <div class="container">
+            <div class="has-text-centered mb-6">
+                <h2 class="title is-2" style="color: var(--dark-blue);">¿Por qué elegir FitPlanner?</h2>
+                <p class="subtitle is-5" style="color: var(--blue-gray);">
+                    Una plataforma completa para transformar tu experiencia fitness
+                </p>
+            </div>
+            
+            <div class="columns is-multiline">
+                <div class="column is-4">
+                    <div class="feature-card has-text-centered">
+                        <i class="fas fa-calendar-alt feature-icon"></i>
+                        <h3 class="title is-4" style="color: var(--dark-blue);">Rutinas Personalizadas</h3>
+                        <p style="color: var(--blue-gray);">
+                            Crea y gestiona rutinas de entrenamiento adaptadas a tus objetivos específicos y nivel de condición física.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="column is-4">
+                    <div class="feature-card has-text-centered">
+                        <i class="fas fa-user-tie feature-icon"></i>
+                        <h3 class="title is-4" style="color: var(--dark-blue);">Entrenadores Profesionales</h3>
+                        <p style="color: var(--blue-gray);">
+                            Conecta con entrenadores certificados que te guiarán en tu camino hacia el éxito fitness.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="column is-4">
+                    <div class="feature-card has-text-centered">
+                        <i class="fas fa-chart-bar feature-icon"></i>
+                        <h3 class="title is-4" style="color: var(--dark-blue);">Seguimiento de Progreso</h3>
+                        <p style="color: var(--blue-gray);">
+                            Monitorea tu evolución con métricas detalladas y visualiza tu progreso a lo largo del tiempo.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section class="hero" style="background-color: var(--dark-blue);">
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <h2 class="title is-3" style="color: var(--white);">
+                    ¿Listo para transformar tu entrenamiento?
+                </h2>
+                <p class="subtitle is-5" style="color: var(--light-gray); margin-bottom: 2rem;">
+                    Únete a miles de usuarios que ya están alcanzando sus objetivos con FitPlanner
+                </p>
+                <a href="/register" class="button is-large btn-primary-custom">
+                    <span class="icon">
+                        <i class="fas fa-rocket"></i>
+                    </span>
+                    <span>Comenzar Ahora</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" style="background-color: var(--light-gray); padding: 2rem 0;">
+        <div class="content has-text-centered">
+            <p style="color: var(--blue-gray);">
+                <strong style="color: var(--dark-blue);">FitPlanner</strong> - Proyecto Integrador - Desarrollo de Software
+            </p>
+            <p style="color: var(--blue-gray);">
+                Desarrollado con <i class="fas fa-heart" style="color: var(--primary-red);"></i> usando FastAPI
+            </p>
+        </div>
+    </footer>
+
+    <script src="../static/js/main.js"></script>
+</body>
+</html>

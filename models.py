@@ -64,9 +64,6 @@ class Rutina(SQLModel, table=True):
     )
 
 
-# =========================================================
-# MODELO PROGRESO
-# =========================================================
 class Progreso(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     usuario_id: int = Field(default=None, foreign_key="usuario.id")
@@ -77,10 +74,6 @@ class Progreso(SQLModel, table=True):
 
     usuario: Optional[Usuario] = Relationship(back_populates="progresos")
 
-
-# =========================================================
-# MODELO RECOMENDACION (1:1)
-# =========================================================
 class Recomendacion(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     usuario_id: int = Field(default=None, foreign_key="usuario.id")
