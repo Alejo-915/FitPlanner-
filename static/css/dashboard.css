@@ -1,0 +1,136 @@
+/* Estilos para el Dashboard de Usuario (Bento Grid) */
+
+:root {
+    --card-bg: #ffffff;
+    --card-border: #e2e2e2;
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    --accent-blue: #273348;
+    --accent-red: #E30005;
+    --text-primary: #363636;
+    --text-secondary: #7D89A1;
+}
+
+body {
+    background-color: #f5f7fa;
+    min-height: 100vh;
+}
+
+.dashboard-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Estilo de tarjeta base (Bento Box) */
+.bento-card {
+    background-color: var(--card-bg);
+    border-radius: 16px;
+    padding: 1.5rem;
+    height: 100%;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--card-border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.bento-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.bento-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--accent-blue);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Caja 1: Perfil */
+.profile-card {
+    border-left: 4px solid var(--accent-blue);
+}
+
+.profile-stats {
+    margin-top: 1rem;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.stat-value {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.calendar-btn {
+    margin-top: auto;
+    background-color: var(--accent-blue);
+    color: white;
+    border-radius: 12px;
+    padding: 0.75rem;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.calendar-btn:hover {
+    background-color: #1a2230;
+}
+
+/* Caja 2: Progreso */
+.progress-card {
+    border-top: 4px solid var(--accent-red);
+}
+
+.progress-placeholder {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    color: var(--text-secondary);
+}
+
+/* Caja 3: Recomendaciones */
+.recommendations-card {
+    border-right: 4px solid var(--accent-blue);
+}
+
+/* Caja 4: Rutina (Grande) */
+.routine-card {
+    min-height: 300px;
+    border-bottom: 4px solid var(--accent-red);
+}
+
+/* Navbar específica del dashboard */
+.dashboard-nav {
+    background-color: var(--accent-blue);
+    padding: 1rem 2rem;
+    margin-bottom: 2rem;
+    border-radius: 0 0 16px 16px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}

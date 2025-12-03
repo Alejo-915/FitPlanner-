@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Ejercicios - FitPlanner</title>
+    <!-- DataTables CDN -->
+    <link href="https://cdn.datatables.net/v/dt/dt-2.3.5/b-3.2.5/b-colvis-3.2.5/b-html5-3.2.5/b-print-3.2.5/r-3.0.7/datatables.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/stock-styles.css">
+</head>
+<body>
+    <section id="stock-container-section">
+        <article class="stock-container-article">
+            <h2 id="h2">GESTION DE EJERCICIOS</h2>
+            <br>
+            <table id="tabla-ejercicios" class="display table table-striped" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Grupo Muscular</th>
+                        <th>Equipo</th>
+                        <th>Descripción</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </article>
+    </section>
+
+    <!-- Modal detalles ejercicio -->
+    <section id="modal-detalles-ejercicio" class="modal">
+        <form id="modal-ejercicio-content">
+            <article class="modal-article">
+                <div class="modal-header">
+                    <button id="close-modal-btn-ejercicio" class="btn-modal">❌</button>
+                    <h4 id="modal-ejercicio-title"></h4>
+                </div>
+                <picture class="modal-img-container">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2548/2548533.png" alt="imagen ejercicio">
+                </picture>
+            </article>
+            <article class="modal-article">
+                <div id="detalles-container-ejercicio">
+                    <h2>Detalles</h2>
+                    <!-- Content loaded by JS -->
+                </div>
+            </article>
+        </form>
+    </section>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/v/dt/dt-2.3.5/b-3.2.5/b-colvis-3.2.5/b-html5-3.2.5/b-print-3.2.5/r-3.0.7/datatables.min.js"></script>
+    <script src="/static/js/ejercicios.js"></script>
+</body>
+</html>

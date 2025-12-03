@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Panel - FitPlanner</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../static/css/main.css">
+    <link rel="stylesheet" href="../../static/css/dashboard.css">
+</head>
+<body>
+
+    <!-- Navbar Superior -->
+    <nav class="dashboard-nav">
+        <div class="nav-brand">
+            <i class="fas fa-dumbbell"></i> FITPLANNER
+        </div>
+        <div class="nav-user">
+            <span>Hola, Usuario</span>
+            <div class="image is-32x32">
+                <img class="is-rounded" src="https://ui-avatars.com/api/?name=User&background=E30005&color=fff" alt="User">
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <!-- Primera Fila: 3 Columnas -->
+        <div class="columns is-desktop">
+            
+            <!-- Caja 1: Perfil del Usuario -->
+            <div class="column is-4-desktop is-12-tablet">
+                <div class="bento-card profile-card">
+                    <h3 class="bento-title">
+                        Mi Perfil
+                        <i class="fas fa-id-card" style="color: var(--accent-red);"></i>
+                    </h3>
+                    
+                    <div class="content">
+                        <h4 class="title is-5">Juan Pérez</h4>
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <span>Edad</span>
+                                <span class="stat-value">28 años</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>Peso Actual</span>
+                                <span class="stat-value">78.5 kg</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>Altura</span>
+                                <span class="stat-value">1.75 m</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>Objetivo</span>
+                                <span class="stat-value" style="color: var(--accent-red);">Ganar Músculo</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="calendar-btn">
+                        <i class="fas fa-calendar-alt"></i> Ver Calendario
+                    </div>
+                </div>
+            </div>
+
+            <!-- Caja 2: Progreso -->
+            <div class="column is-4-desktop is-6-tablet">
+                <div class="bento-card progress-card">
+                    <h3 class="bento-title">
+                        Progreso Semanal
+                        <i class="fas fa-chart-line" style="color: var(--primary-green);"></i>
+                    </h3>
+                    <div class="progress-placeholder">
+                        <div class="has-text-centered">
+                            <i class="fas fa-chart-area fa-3x mb-3" style="opacity: 0.3;"></i>
+                            <p>Gráfico de Actividad</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Caja 3: Recomendaciones -->
+            <div class="column is-4-desktop is-6-tablet">
+                <div class="bento-card recommendations-card">
+                    <h3 class="bento-title">
+                        Recomendaciones
+                        <i class="fas fa-lightbulb" style="color: #FFD700;"></i>
+                    </h3>
+                    <div class="content is-small">
+                        <ul>
+                            <li>Hidratarse bien antes de entrenar.</li>
+                            <li>Descansar 8 horas diarias.</li>
+                            <li>Aumentar ingesta de proteínas.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Segunda Fila: Caja Grande (Rutina) -->
+        <div class="columns">
+            <div class="column is-12">
+                <div class="bento-card routine-card">
+                    <h3 class="bento-title">
+                        Rutina de Hoy: Torso / Hipertrofia
+                        <button class="button is-small is-rounded is-outlined">
+                            <span class="icon"><i class="fas fa-play"></i></span>
+                            <span>Iniciar</span>
+                        </button>
+                    </h3>
+                    
+                    <div class="table-container">
+                        <table class="table is-fullwidth is-hoverable">
+                            <thead>
+                                <tr>
+                                    <th>Ejercicio</th>
+                                    <th>Series</th>
+                                    <th>Reps</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Press Banca Plano</td>
+                                    <td>4</td>
+                                    <td>8-10</td>
+                                    <td><span class="tag is-warning">Pendiente</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Remo con Barra</td>
+                                    <td>4</td>
+                                    <td>10-12</td>
+                                    <td><span class="tag is-warning">Pendiente</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Press Militar</td>
+                                    <td>3</td>
+                                    <td>12-15</td>
+                                    <td><span class="tag is-warning">Pendiente</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../static/js/main.js"></script>
+</body>
+</html>

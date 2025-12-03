@@ -23,8 +23,8 @@ class Usuario(SQLModel, table=True):
     correo: str
     contraseña: str
     edad: int
-    peso: float
-    altura: float
+    peso: Optional[float] = Field(default=None)
+    altura: Optional[float] = Field(default=None)
     objetivo: str
     activo: bool = True
 
@@ -64,9 +64,6 @@ class Rutina(SQLModel, table=True):
     )
 
 
-# =========================================================
-# MODELO PROGRESO
-# =========================================================
 class Progreso(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     usuario_id: int = Field(default=None, foreign_key="usuario.id")
@@ -77,10 +74,6 @@ class Progreso(SQLModel, table=True):
 
     usuario: Optional[Usuario] = Relationship(back_populates="progresos")
 
-
-# =========================================================
-# MODELO RECOMENDACION (1:1)
-# =========================================================
 class Recomendacion(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     usuario_id: int = Field(default=None, foreign_key="usuario.id")
@@ -88,3 +81,13 @@ class Recomendacion(SQLModel, table=True):
     descripcion: str
 
     usuario: Optional[Usuario] = Relationship(back_populates="recomendacion")
+
+
+# =========================================================
+# MODELO OBJETIVO (Nuevo)
+# =========================================================
+class Objetivo(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    titulo: str
+    descripcion: str
+    imagen_url: Optional[str] = None

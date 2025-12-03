@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - FitPlanner</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../static/css/main.css">
+    <link rel="stylesheet" href="../../static/css/dashboard.css">
+</head>
+<body>
+
+    <!-- Navbar Admin -->
+    <nav class="dashboard-nav" style="background-color: var(--dark-blue);">
+        <div class="nav-brand">
+            <i class="fas fa-shield-alt"></i> ADMIN PANEL
+        </div>
+        <div class="nav-user">
+            <span>Administrador</span>
+            <div class="image is-32x32">
+                <img class="is-rounded" src="https://ui-avatars.com/api/?name=Admin&background=273348&color=fff" alt="Admin">
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <h1 class="title is-3 has-text-dark mb-6">Gestión de la Plataforma</h1>
+
+        <div class="columns is-multiline">
+            
+            <!-- CRUD Usuarios -->
+            <div class="column is-6-desktop is-12-tablet">
+                <div class="bento-card" style="border-left: 4px solid var(--primary-red);">
+                    <h3 class="bento-title">
+                        Usuarios
+                        <i class="fas fa-users fa-lg" style="color: var(--primary-red);"></i>
+                    </h3>
+                    <p class="content is-small has-text-grey">
+                        Administra los usuarios registrados, sus perfiles y estados de cuenta.
+                    </p>
+                    <div class="buttons is-right mt-auto">
+                        <a href="/admin/usuarios" target="_blank" class="button is-small is-link is-light">
+                            <span class="icon"><i class="fas fa-external-link-alt"></i></span>
+                            <span>Gestionar Usuarios</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CRUD Ejercicios -->
+            <div class="column is-6-desktop is-12-tablet">
+                <div class="bento-card" style="border-left: 4px solid var(--primary-green);">
+                    <h3 class="bento-title">
+                        Ejercicios
+                        <i class="fas fa-dumbbell fa-lg" style="color: var(--primary-green);"></i>
+                    </h3>
+                    <p class="content is-small has-text-grey">
+                        Catálogo completo de ejercicios, grupos musculares y equipamiento necesario.
+                    </p>
+                    <div class="buttons is-right mt-auto">
+                        <a href="/admin/ejercicios" target="_blank" class="button is-small is-link is-light">
+                            <span class="icon"><i class="fas fa-external-link-alt"></i></span>
+                            <span>Gestionar Ejercicios</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CRUD Rutinas -->
+            <div class="column is-6-desktop is-12-tablet">
+                <div class="bento-card" style="border-left: 4px solid #FFD700;">
+                    <h3 class="bento-title">
+                        Rutinas
+                        <i class="fas fa-clipboard-list fa-lg" style="color: #FFD700;"></i>
+                    </h3>
+                    <p class="content is-small has-text-grey">
+                        Creación y asignación de rutinas de entrenamiento personalizadas.
+                    </p>
+                    <div class="buttons is-right mt-auto">
+                        <a href="/admin/rutinas" target="_blank" class="button is-small is-link is-light">
+                            <span class="icon"><i class="fas fa-external-link-alt"></i></span>
+                            <span>Gestionar Rutinas</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CRUD Objetivos -->
+            <div class="column is-6-desktop is-12-tablet">
+                <div class="bento-card" style="border-left: 4px solid var(--blue-gray);">
+                    <h3 class="bento-title">
+                        Objetivos
+                        <i class="fas fa-bullseye fa-lg" style="color: var(--blue-gray);"></i>
+                    </h3>
+                    <p class="content is-small has-text-grey">
+                        Define los objetivos de fitness disponibles para los usuarios (ej: Perder peso, Ganar masa).
+                    </p>
+                    <div class="buttons is-right mt-auto">
+                        <a href="/admin/objetivos" target="_blank" class="button is-small is-link is-light">
+                            <span class="icon"><i class="fas fa-external-link-alt"></i></span>
+                            <span>Gestionar Objetivos</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
