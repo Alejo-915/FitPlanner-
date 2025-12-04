@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()  # Carga variables de entorno del archivo .env
+
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -29,7 +32,6 @@ app.include_router(progreso_router)
 app.include_router(recomendacion_router)
 app.include_router(auth)
 app.include_router(pages_router)
-
 
 @app.get("/")
 def root():
