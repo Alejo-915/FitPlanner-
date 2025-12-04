@@ -94,8 +94,8 @@ async function handleRegister(e) {
     const fullname = `${firstName} ${lastName}`;
     
     // Validaciones
-    if (!fullname || !email || !password || !confirmPassword || !age || !weight || !height || !goal) {
-        alert('Por favor, completa todos los campos');
+    if (!fullname || !email || !password || !confirmPassword || !age || !goal) {
+        alert('Por favor, completa los campos obligatorios');
         return;
     }
     
@@ -124,8 +124,8 @@ async function handleRegister(e) {
         email,
         password,
         age: parseInt(age),
-        weight: parseFloat(weight),
-        height: parseFloat(height),
+        weight: weight ? parseFloat(weight) : null,
+        height: height ? parseFloat(height) : null,
         goal,
         termsAccepted: terms
     };

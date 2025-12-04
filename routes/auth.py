@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from pydantic import BaseModel
+from typing import Optional
 from db import get_session
 from models import Usuario
 
@@ -15,8 +16,8 @@ class RegisterRequest(BaseModel):
     email: str
     password: str
     age: int
-    weight: float
-    height: float
+    weight: Optional[float] = None
+    height: Optional[float] = None
     goal: str
 
 @router.post("/login")
