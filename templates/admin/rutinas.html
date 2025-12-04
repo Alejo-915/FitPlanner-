@@ -13,6 +13,9 @@
     <section id="stock-container-section">
         <article class="stock-container-article">
             <h2 id="h2">GESTION DE RUTINAS</h2>
+            <div style="margin-bottom: 20px;">
+                <button id="btn-crear-rutina" class="btn btn-primary">➕ Nueva Rutina</button>
+            </div>
             <br>
             <table id="tabla-rutinas" class="display table table-striped" style="width:100%">
                 <thead>
@@ -51,11 +54,56 @@
         </form>
     </section>
 
+    <!-- Modal CREAR rutina -->
+    <section id="modal-crear-rutina" class="modal" style="display:none;">
+        <div class="modal-content" style="background:white; padding:20px; max-width:600px; margin:50px auto; border-radius:8px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header" style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                <h3>Crear Nueva Rutina</h3>
+                <button id="close-crear-rutina-btn" style="background:none; border:none; font-size:1.5em; cursor:pointer;">❌</button>
+            </div>
+            <form id="form-crear-rutina">
+                <div style="margin-bottom:15px;">
+                    <label>Nombre de la Rutina:</label>
+                    <input type="text" name="nombre" required class="input-field" style="width:100%; padding:8px;">
+                </div>
+                <div style="margin-bottom:15px;">
+                    <label>Nivel:</label>
+                    <select name="nivel" required class="input-field" style="width:100%; padding:8px;">
+                        <option value="Principiante">Principiante</option>
+                        <option value="Intermedio">Intermedio</option>
+                        <option value="Avanzado">Avanzado</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:15px;">
+                    <label>Frecuencia (días/semana):</label>
+                    <input type="number" name="frecuencia" min="1" max="7" required class="input-field" style="width:100%; padding:8px;">
+                </div>
+                <div style="margin-bottom:15px;">
+                    <label>ID Usuario:</label>
+                    <input type="number" name="usuario_id" required class="input-field" style="width:100%; padding:8px;">
+                </div>
+                
+                <hr>
+                <h4>Asignar Ejercicios</h4>
+                <div id="lista-ejercicios-seleccion" style="max-height: 200px; overflow-y: scroll; border:1px solid #ccc; padding:10px; margin-bottom:15px;">
+                    <!-- Cargados via JS -->
+                    <p>Cargando ejercicios...</p>
+                </div>
+
+                <div id="ejercicios-parametros" style="margin-bottom: 15px;">
+                    <!-- Inputs dinámicos para ejercicios seleccionados -->
+                </div>
+
+                <button type="submit" class="btn btn-success" style="width:100%;">Crear Rutina</button>
+            </form>
+        </div>
+    </section>
+
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
     <script src="https://cdn.datatables.net/v/dt/dt-2.3.5/b-3.2.5/b-colvis-3.2.5/b-html5-3.2.5/b-print-3.2.5/r-3.0.7/datatables.min.js"></script>
-    <script src="/static/js/rutinas.js"></script>
+    <script src="/static/js/rutinas.js?v=2"></script>
 </body>
 </html>

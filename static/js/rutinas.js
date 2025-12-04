@@ -14,6 +14,7 @@ const closeModal = () => {
 
 $(document).ready(function() {
     // Initialize DataTables
+    console.log('Initializing DataTable...');
     tablaRutinas = $('#tabla-rutinas').DataTable({
         ajax: {
             url: "/rutinas/", // Endpoint from routes/rutina.py
@@ -30,9 +31,11 @@ $(document).ready(function() {
                 data: null,
                 orderable: false,
                 render: function(data, type, row) {
+                    // console.log('Rendering row:', row.id);
                     return `<div class="btn-group">
+                        <button class="btn btn-sm btn-primary" onClick="viewShowRutina(${row.id})">👁️</button>
+                        <button class="btn btn-sm btn-info" onClick="viewEditRutina(${row.id})">✏️</button>
                         <button class="btn btn-sm btn-danger" onClick="viewDeleteRutina(${row.id})">🗑️</button>
-                        <button class="btn btn-sm btn-info" onClick="viewDetailsRutina(${row.id})">✏️</button>
                     </div>`;
                 }
             }
@@ -118,6 +121,167 @@ $(document).ready(function() {
             }
         });
     }
+    // Create Routine Modal Elements
+    const btnCrearRutina = document.getElementById('btn-crear-rutina');
+    const modalCrearRutina = document.getElementById('modal-crear-rutina');
+    const closeCrearRutinaBtn = document.getElementById('close-crear-rutina-btn');
+    const formCrearRutina = document.getElementById('form-crear-rutina');
+    const listaEjerciciosContainer = document.getElementById('lista-ejercicios-seleccion');
+    const ejerciciosParametrosContainer = document.getElementById('ejercicios-parametros');
+
+    // Open Create Modal
+    if (btnCrearRutina) {
+        btnCrearRutina.addEventListener('click', async () => {
+            modalCrearRutina.style.display = 'flex';
+            await cargarEjerciciosParaSeleccion();
+        });
+    }
+
+    // Close Create Modal
+    if (closeCrearRutinaBtn) {
+        closeCrearRutinaBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            modalCrearRutina.style.display = 'none';
+        });
+    }
+
+    window.addEventListener('click', (e) => {
+        if (e.target === modalCrearRutina) {
+            modalCrearRutina.style.display = 'none';
+        }
+    });
+
+    // Load Exercises for Selection
+    async function cargarEjerciciosParaSeleccion() {
+        try {
+            listaEjerciciosContainer.innerHTML = '<p>Cargando...</p>';
+            const res = await fetch('/ejercicios/');
+            if (!res.ok) throw new Error('Error al cargar ejercicios');
+            const ejercicios = await res.json();
+
+            let html = '';
+            if (ejercicios.length === 0) {
+                html = '<p>No hay ejercicios disponibles.</p>';
+            } else {
+                ejercicios.forEach(ej => {
+                    html += `
+                        <div style="display:flex; align-items:center; margin-bottom:5px;">
+                            <input type="checkbox" class="ejercicio-check" value="${ej.id}" data-nombre="${ej.nombre}" id="check-ej-${ej.id}">
+                            <label for="check-ej-${ej.id}" style="margin-left:8px; cursor:pointer;">
+                                <strong>${ej.nombre}</strong> (${ej.grupo_muscular})
+                            </label>
+                        </div>
+                    `;
+                });
+            }
+            listaEjerciciosContainer.innerHTML = html;
+
+            // Add listeners to checkboxes to show parameter inputs
+            document.querySelectorAll('.ejercicio-check').forEach(check => {
+                check.addEventListener('change', actualizarParametrosEjercicios);
+            });
+
+        } catch (error) {
+            console.error(error);
+            listaEjerciciosContainer.innerHTML = '<p style="color:red">Error al cargar ejercicios</p>';
+        }
+    }
+
+    function actualizarParametrosEjercicios(e) {
+        const check = e.target;
+        const id = check.value;
+        const nombre = check.dataset.nombre;
+
+        if (check.checked) {
+            // Add inputs for this exercise
+            const div = document.createElement('div');
+            div.id = `params-ej-${id}`;
+            div.className = 'params-ejercicio-row';
+            div.style = 'border:1px solid #eee; padding:10px; margin-bottom:10px; background:#f9f9f9;';
+            div.innerHTML = `
+                <p style="margin:0 0 5px 0; font-weight:bold; color:#333;">${nombre}</p>
+                <div style="display:flex; gap:10px;">
+                    <div>
+                        <label style="font-size:0.8em">Series</label>
+                        <input type="number" name="series_${id}" value="4" min="1" style="width:60px;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.8em">Reps</label>
+                        <input type="number" name="reps_${id}" value="12" min="1" style="width:60px;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.8em">Duración (min)</label>
+                        <input type="number" name="duracion_${id}" value="0" min="0" style="width:80px;">
+                    </div>
+                </div>
+            `;
+            ejerciciosParametrosContainer.appendChild(div);
+        } else {
+            // Remove inputs
+            const div = document.getElementById(`params-ej-${id}`);
+            if (div) div.remove();
+        }
+    }
+
+    // Handle Create Routine Submit
+    if (formCrearRutina) {
+        formCrearRutina.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const nombre = formCrearRutina.querySelector('input[name="nombre"]').value;
+            const nivel = formCrearRutina.querySelector('select[name="nivel"]').value;
+            const frecuencia = parseInt(formCrearRutina.querySelector('input[name="frecuencia"]').value);
+            const usuario_id = parseInt(formCrearRutina.querySelector('input[name="usuario_id"]').value);
+
+            // 1. Create Routine
+            try {
+                const resRutina = await fetch('/rutinas/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre, nivel, frecuencia, usuario_id })
+                });
+
+                if (!resRutina.ok) {
+                    const err = await resRutina.json();
+                    throw new Error(err.detail || 'Error al crear rutina');
+                }
+
+                const dataRutina = await resRutina.json();
+                const rutinaId = dataRutina.rutina.id;
+
+                // 2. Assign Exercises
+                const checkboxes = document.querySelectorAll('.ejercicio-check:checked');
+                for (const check of checkboxes) {
+                    const ejId = check.value;
+                    const series = document.querySelector(`input[name="series_${ejId}"]`).value;
+                    const repeticiones = document.querySelector(`input[name="reps_${ejId}"]`).value;
+                    const duracion = document.querySelector(`input[name="duracion_${ejId}"]`).value;
+
+                    await fetch('/rutinas_ejercicios/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            rutina_id: rutinaId,
+                            ejercicio_id: parseInt(ejId),
+                            series: parseInt(series),
+                            repeticiones: parseInt(repeticiones),
+                            duracion: parseInt(duracion)
+                        })
+                    });
+                }
+
+                alert('Rutina creada y ejercicios asignados correctamente');
+                modalCrearRutina.style.display = 'none';
+                formCrearRutina.reset();
+                ejerciciosParametrosContainer.innerHTML = '';
+                tablaRutinas.ajax.reload(null, false);
+
+            } catch (error) {
+                console.error(error);
+                alert('Error: ' + error.message);
+            }
+        });
+    }
 });
 
 // Helper to fetch routine details
@@ -127,12 +291,72 @@ const fetchRutina = async (id) => {
     return await res.json();
 };
 
-// Global function to open modal details
-window.viewDetailsRutina = async (id) => {
+// Global function to show read-only details
+window.viewShowRutina = async (id) => {
+    try {
+        const rutina = await fetchRutina(id);
+        modalTitle.textContent = `Detalles Rutina #${rutina.id}`;
+        modalDetalles.style.display = 'flex';
+
+        // Construct exercises table
+        let ejerciciosHtml = '';
+        if (rutina.ejercicios && rutina.ejercicios.length > 0) {
+            ejerciciosHtml = `
+                <table class="table table-bordered table-striped" style="width:100%; margin-top:10px;">
+                    <thead>
+                        <tr>
+                            <th>Ejercicio</th>
+                            <th>Grupo Muscular</th>
+                            <th>Equipo</th>
+                            <th>Series</th>
+                            <th>Reps</th>
+                            <th>Duración</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            rutina.ejercicios.forEach(ej => {
+                ejerciciosHtml += `
+                    <tr>
+                        <td>${ej.nombre}</td>
+                        <td>${ej.grupo_muscular}</td>
+                        <td>${ej.equipo || '-'}</td>
+                        <td>${ej.series}</td>
+                        <td>${ej.repeticiones}</td>
+                        <td>${ej.duracion} min</td>
+                    </tr>
+                `;
+            });
+            ejerciciosHtml += '</tbody></table>';
+        } else {
+            ejerciciosHtml = '<p>No hay ejercicios asignados.</p>';
+        }
+
+        let html = `
+            <div class="details-view">
+                <p><strong>Nombre:</strong> ${rutina.nombre_rutina}</p>
+                <p><strong>Nivel:</strong> ${rutina.nivel}</p>
+                <p><strong>Frecuencia:</strong> ${rutina.frecuencia} días/semana</p>
+                <p><strong>Usuario:</strong> ${rutina.usuario_nombre} (ID: ${rutina.usuario_id})</p>
+                
+                <hr>
+                <h3>Ejercicios Asignados</h3>
+                ${ejerciciosHtml}
+            </div>
+        `;
+        detallesContainer.innerHTML = html;
+    } catch (err) {
+        console.error(err);
+        alert("Error al cargar detalles de la rutina");
+    }
+};
+
+// Global function to edit details
+window.viewEditRutina = async (id) => {
     try {
         const rutina = await fetchRutina(id);
         rutinaGlobal = rutina;
-        modalTitle.textContent = `Rutina #${rutina.id}`;
+        modalTitle.textContent = `Editar Rutina #${rutina.id}`;
         modalDetalles.style.display = 'flex';
 
         // Construct exercises list

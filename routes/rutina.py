@@ -40,6 +40,8 @@ def listar_rutinas_con_ejercicios(session: Session = Depends(get_session)):
                 "id": ej.id,
                 "nombre": ej.nombre,
                 "grupo_muscular": ej.grupo_muscular,
+                "equipo": ej.equipo,
+                "descripcion": ej.descripcion,
                 "series": re.series,
                 "repeticiones": re.repeticiones,
                 "duracion": re.duracion
@@ -53,6 +55,7 @@ def listar_rutinas_con_ejercicios(session: Session = Depends(get_session)):
             "nivel": rutina.nivel,
             "frecuencia": rutina.frecuencia,
             "usuario_id": rutina.usuario_id,
+            "usuario_nombre": rutina.usuario.nombre if rutina.usuario else "Desconocido",
             "ejercicios": ejercicios_info
         })
 
@@ -77,6 +80,8 @@ def obtener_rutina_por_id(rutina_id: int, session: Session = Depends(get_session
             "id": ej.id,
             "nombre": ej.nombre,
             "grupo_muscular": ej.grupo_muscular,
+            "equipo": ej.equipo,
+            "descripcion": ej.descripcion,
             "series": re.series,
             "repeticiones": re.repeticiones,
             "duracion": re.duracion
@@ -90,6 +95,7 @@ def obtener_rutina_por_id(rutina_id: int, session: Session = Depends(get_session
         "nivel": rutina.nivel,
         "frecuencia": rutina.frecuencia,
         "usuario_id": rutina.usuario_id,
+        "usuario_nombre": rutina.usuario.nombre if rutina.usuario else "Desconocido",
         "ejercicios": ejercicios_info
     }
 

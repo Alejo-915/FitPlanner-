@@ -68,6 +68,9 @@ async function handleLogin(e) {
         });
 
         if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem('user_id', data.user_id);
+            localStorage.setItem('user_name', data.nombre);
             window.location.href = '/home/user';
         } else {
             const errorData = await response.json();
