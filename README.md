@@ -282,7 +282,7 @@ Este proyecto fue desarrollado como parte de un proyecto integrador de Desarroll
 
 ---
 
-## 📧 Contacto
+
 
 
 ---
