@@ -13,7 +13,7 @@ function initInputEffects() {
         input.addEventListener('focus', function() {
             this.parentElement.parentElement.classList.add('is-focused');
         });
-        
+
         input.addEventListener('blur', function() {
             this.parentElement.parentElement.classList.remove('is-focused');
         });
@@ -27,22 +27,22 @@ function isValidEmail(email) {
 
 async function handleLogin(e) {
     e.preventDefault();
-    
+
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const remember = document.getElementById('remember').checked;
-    
+
     // Validación básica
     if (!email || !password) {
         alert('Por favor, completa todos los campos');
         return;
     }
-    
+
     if (!isValidEmail(email)) {
         alert('Por favor, ingresa un email válido');
         return;
     }
-    
+
     const loginData = {
         email: email,
         password: password,
@@ -76,7 +76,7 @@ async function handleLogin(e) {
             const errorData = await response.json();
             throw new Error(errorData.detail || 'Error en login');
         }
-        
+
     } catch (error) {
         console.error('Error durante el login:', error);
         alert('Error al iniciar sesión. Por favor intente nuevamente.');

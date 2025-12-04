@@ -15,7 +15,7 @@ function initInputEffects() {
         input.addEventListener('focus', function() {
             this.parentElement.parentElement.classList.add('is-focused');
         });
-        
+
         input.addEventListener('blur', function() {
             this.parentElement.parentElement.classList.remove('is-focused');
         });
@@ -34,21 +34,21 @@ function initPasswordStrength() {
     passwordInput.addEventListener('input', function() {
         const password = this.value;
         const strengthDiv = document.getElementById('passwordStrength');
-        
+
         if (!strengthDiv) return;
-        
+
         if (password.length === 0) {
             strengthDiv.textContent = '';
             return;
         }
-        
+
         let strength = 0;
         if (password.length >= 6) strength++;
         if (password.match(/[a-z]/)) strength++;
         if (password.match(/[A-Z]/)) strength++;
         if (password.match(/[0-9]/)) strength++;
         if (password.match(/[^a-zA-Z0-9]/)) strength++;
-        
+
         if (strength < 3) {
             strengthDiv.textContent = 'Contraseña débil';
             strengthDiv.className = 'password-strength strength-weak';
@@ -69,7 +69,7 @@ function initPasswordMatch() {
     confirmPasswordInput.addEventListener('input', function() {
         const password = document.getElementById('password').value;
         const confirmPassword = this.value;
-        
+
         if (confirmPassword && password !== confirmPassword) {
             this.style.borderColor = '#ff3860';
         } else {
@@ -80,7 +80,7 @@ function initPasswordMatch() {
 
 async function handleRegister(e) {
     e.preventDefault();
-    
+
     const firstName = document.getElementById('firstName').value;
     const lastName = document.getElementById('lastName').value;
     const email = document.getElementById('email').value;
@@ -92,33 +92,33 @@ async function handleRegister(e) {
     const goal = document.getElementById('goal').value;
     const terms = document.getElementById('terms').checked;
     const fullname = `${firstName} ${lastName}`;
-    
+
     // Validaciones
     if (!fullname || !email || !password || !confirmPassword || !age || !goal) {
         alert('Por favor, completa los campos obligatorios');
         return;
     }
-    
+
     if (!isValidEmail(email)) {
         alert('Por favor, ingresa un email válido');
         return;
     }
-    
+
     if (password.length < 6) {
         alert('La contraseña debe tener al menos 6 caracteres');
         return;
     }
-    
+
     if (password !== confirmPassword) {
         alert('Las contraseñas no coinciden');
         return;
     }
-    
+
     if (!terms) {
         alert('Debes aceptar los términos y condiciones');
         return;
     }
-    
+
     const registerData = {
         fullname,
         email,
@@ -150,7 +150,7 @@ async function handleRegister(e) {
 
         // Simulación de delay
         // await new Promise(resolve => setTimeout(resolve, 2000));
-        
+
         if (response.ok) {
             const data = await response.json();
             localStorage.setItem('user_id', data.user_id);
@@ -160,7 +160,7 @@ async function handleRegister(e) {
             const errorData = await response.json();
             throw new Error(errorData.detail || 'Error en registro');
         }
-        
+
     } catch (error) {
         console.error('Error durante el registro:', error);
         alert('Error al crear la cuenta. Por favor intente nuevamente.');
