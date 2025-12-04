@@ -1,32 +1,22 @@
 let tablaEjercicios;
 let ejercicioGlobal = null;
 
-// Modal elements - Detalles
+// Modal elements
 const modalDetalles = document.getElementById('modal-detalles-ejercicio');
 const modalTitle = document.getElementById('modal-ejercicio-title');
 const closeModalBtn = document.getElementById('close-modal-btn-ejercicio');
 const detallesContainer = document.getElementById('detalles-container-ejercicio');
 
-// Modal elements - Crear
-const modalCrear = document.getElementById('modal-crear-ejercicio');
-const btnCrearEjercicio = document.getElementById('btn-crear-ejercicio');
-const closeModalCrearBtn = document.getElementById('close-modal-crear-btn');
-const formCrear = document.getElementById('modal-crear-content');
-
-// Close modals
+// Close modal helper
 const closeModal = () => {
     if (modalDetalles) modalDetalles.style.display = 'none';
-};
-
-const closeModalCrear = () => {
-    if (modalCrear) modalCrear.style.display = 'none';
 };
 
 $(document).ready(function() {
     // Initialize DataTables
     tablaEjercicios = $('#tabla-ejercicios').DataTable({
         ajax: {
-            url: "/ejercicios/",
+            url: "/ejercicios/", // Endpoint from routes/ejercicio.py
             dataSrc: "",
             error: function(xhr) { console.error('AJAX Error:', xhr); }
         },
@@ -36,17 +26,6 @@ $(document).ready(function() {
             { data: "grupo_muscular" },
             { data: "equipo" },
             { data: "descripcion" },
-            {
-                data: "video_url",
-                render: function(data) {
-                    if (data) {
-                        return `<a href="${data}" target="_blank" class="button is-small is-link">
-                            <i class="fab fa-youtube"></i> Ver Video
-                        </a>`;
-                    }
-                    return '<span style="color: #999;">Sin video</span>';
-                }
-            },
             {
                 data: null,
                 orderable: false,
@@ -61,7 +40,7 @@ $(document).ready(function() {
         dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>" +
-                "<'row'<'col-sm-12'B>>",
+                "<'row'<'col-sm-12'B>>",  
         buttons: [
             { extend: 'excel', text: 'Excel', className: 'btn btn-success' },
             { extend: 'csv', text: 'CSV', className: 'btn btn-info' },
@@ -77,47 +56,23 @@ $(document).ready(function() {
         },
     });
 
-    // Modal Detalles Event Listeners
+    // Modal Event Listeners
     if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', e => {
-            e.preventDefault();
-            closeModal();
+        closeModalBtn.addEventListener('click', e => { 
+            e.preventDefault(); 
+            closeModal(); 
         });
     }
 
-    window.addEventListener('click', e => {
-        if (e.target === modalDetalles) closeModal();
-        if (e.target === modalCrear) closeModalCrear();
+    window.addEventListener('click', e => { 
+        if (e.target === modalDetalles) closeModal(); 
     });
 
-    // Modal Crear Event Listeners
-    if (btnCrearEjercicio) {
-        btnCrearEjercicio.addEventListener('click', e => {
-            e.preventDefault();
-            abrirModalCrear();
-        });
-    }
-
-    if (closeModalCrearBtn) {
-        closeModalCrearBtn.addEventListener('click', e => {
-            e.preventDefault();
-            closeModalCrear();
-        });
-    }
-
-    // Form Crear Submit
-    if (formCrear) {
-        formCrear.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await crearNuevoEjercicio();
-        });
-    }
-
-    // Handle Edit/Save inside Modal Detalles
+    // Handle Edit/Save inside Modal
     if (detallesContainer) {
         detallesContainer.addEventListener('click', e => {
             e.preventDefault();
-
+    
             // Toggle Edit Mode
             if (e.target.classList.contains('btn-edit')) {
                 const inp = e.target.closest('.input-container').querySelector('.input_field');
@@ -125,18 +80,18 @@ $(document).ready(function() {
                 e.target.textContent = inp.disabled ? '✏️' : '✔️';
                 return;
             }
-
+    
             // Save Changes
             if (e.target.id === 'submit-btn') {
-                const formInputs = document.querySelectorAll('#detalles-container-ejercicio .input_field');
+                const formInputs = document.querySelectorAll('.input_field');
                 const data = {};
-                formInputs.forEach(input => {
+                formInputs.forEach(input => { 
                     data[input.name] = input.value;
                 });
-
+    
                 fetch(`/ejercicios/${ejercicioGlobal.id}`, {
                     method: 'PATCH',
-                    headers: {
+                    headers: { 
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(data)
@@ -158,63 +113,6 @@ $(document).ready(function() {
         });
     }
 });
-
-// Función para abrir modal de crear
-function abrirModalCrear() {
-    // Limpiar campos
-    document.getElementById('nuevo-nombre').value = '';
-    document.getElementById('nuevo-grupo-muscular').value = '';
-    document.getElementById('nuevo-equipo').value = '';
-    document.getElementById('nuevo-descripcion').value = '';
-    document.getElementById('nuevo-video-url').value = '';
-
-    modalCrear.style.display = 'flex';
-}
-
-// Función para crear nuevo ejercicio
-async function crearNuevoEjercicio() {
-    const nombre = document.getElementById('nuevo-nombre').value;
-    const grupo_muscular = document.getElementById('nuevo-grupo-muscular').value;
-    const equipo = document.getElementById('nuevo-equipo').value;
-    const descripcion = document.getElementById('nuevo-descripcion').value;
-    const video_url = document.getElementById('nuevo-video-url').value;
-
-    if (!nombre || !grupo_muscular || !equipo || !descripcion) {
-        alert('Por favor completa todos los campos obligatorios');
-        return;
-    }
-
-    const nuevoEjercicio = {
-        nombre,
-        grupo_muscular,
-        equipo,
-        descripcion,
-        video_url: video_url || null
-    };
-
-    try {
-        const response = await fetch('/ejercicios/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(nuevoEjercicio)
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
-
-        const data = await response.json();
-        alert('¡Ejercicio creado exitosamente!');
-        closeModalCrear();
-        tablaEjercicios.ajax.reload(null, false);
-
-    } catch (error) {
-        console.error('Error al crear ejercicio:', error);
-        alert('Error al crear el ejercicio. Por favor intenta nuevamente.');
-    }
-}
 
 // Helper to fetch exercise details
 const fetchEjercicio = async (id) => {
@@ -259,21 +157,6 @@ window.viewDetailsEjercicio = async (id) => {
                     <button type="button" class="btn-edit">✏️</button>
                 </div>
             </label>
-
-            <label>URL del Video (YouTube):
-                <div class="input-container">
-                    <input disabled class="input_field" name="video_url" value="${ejercicio.video_url || ''}">
-                    <button type="button" class="btn-edit">✏️</button>
-                </div>
-            </label>
-
-            ${ejercicio.video_url ? `
-                <div style="margin-top: 15px;">
-                    <a href="${ejercicio.video_url}" target="_blank" class="button is-link">
-                        <i class="fab fa-youtube"></i> Ver Video en YouTube
-                    </a>
-                </div>
-            ` : ''}
 
             <button type="button" id="submit-btn">Guardar cambios</button>
         `;

@@ -17,9 +17,9 @@
             <i class="fas fa-dumbbell"></i> FITPLANNER
         </div>
         <div class="nav-user">
-            <span>Hola, Usuario</span>
+            <span id="nav-user-name">Hola, Usuario</span>
             <div class="image is-32x32">
-                <img class="is-rounded" src="https://ui-avatars.com/api/?name=User&background=E30005&color=fff" alt="User">
+                <img id="user-avatar" class="is-rounded" src="https://ui-avatars.com/api/?name=User&background=E30005&color=fff" alt="User">
             </div>
         </div>
     </nav>
@@ -37,23 +37,23 @@
                     </h3>
                     
                     <div class="content">
-                        <h4 class="title is-5">Juan Pérez</h4>
+                        <h4 class="title is-5" id="profile-name">Cargando...</h4>
                         <div class="profile-stats">
                             <div class="stat-item">
                                 <span>Edad</span>
-                                <span class="stat-value">28 años</span>
+                                <span class="stat-value" id="profile-age">-- años</span>
                             </div>
                             <div class="stat-item">
                                 <span>Peso Actual</span>
-                                <span class="stat-value">78.5 kg</span>
+                                <span class="stat-value" id="profile-weight">-- kg</span>
                             </div>
                             <div class="stat-item">
                                 <span>Altura</span>
-                                <span class="stat-value">1.75 m</span>
+                                <span class="stat-value" id="profile-height">-- cm</span>
                             </div>
                             <div class="stat-item">
                                 <span>Objetivo</span>
-                                <span class="stat-value" style="color: var(--accent-red);">Ganar Músculo</span>
+                                <span class="stat-value" id="profile-goal" style="color: var(--accent-red);">--</span>
                             </div>
                         </div>
                     </div>
@@ -149,5 +149,6 @@
     </div>
 
     <script src="../../static/js/main.js"></script>
+    <script src="../../static/js/user_home.js"></script>
 </body>
 </html>

@@ -15,6 +15,8 @@ class RegisterRequest(BaseModel):
     email: str
     password: str
     age: int
+    weight: float
+    height: float
     goal: str
 
 @router.post("/login")
@@ -35,6 +37,8 @@ def register(data: RegisterRequest, session: Session = Depends(get_session)):
         correo=data.email,
         contraseña=data.password,
         edad=data.age,
+        peso=data.weight,
+        altura=data.height,
         objetivo=data.goal
     )
     session.add(new_user)

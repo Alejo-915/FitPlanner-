@@ -87,12 +87,14 @@ async function handleRegister(e) {
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
     const age = document.getElementById('age').value;
+    const weight = document.getElementById('weight').value;
+    const height = document.getElementById('height').value;
     const goal = document.getElementById('goal').value;
     const terms = document.getElementById('terms').checked;
     const fullname = `${firstName} ${lastName}`;
     
     // Validaciones
-    if (!fullname || !email || !password || !confirmPassword || !age || !goal) {
+    if (!fullname || !email || !password || !confirmPassword || !age || !weight || !height || !goal) {
         alert('Por favor, completa todos los campos');
         return;
     }
@@ -122,6 +124,8 @@ async function handleRegister(e) {
         email,
         password,
         age: parseInt(age),
+        weight: parseFloat(weight),
+        height: parseFloat(height),
         goal,
         termsAccepted: terms
     };
@@ -148,6 +152,9 @@ async function handleRegister(e) {
         // await new Promise(resolve => setTimeout(resolve, 2000));
         
         if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem('user_id', data.user_id);
+            localStorage.setItem('user_name', data.nombre);
             window.location.href = '/home/user';
         } else {
             const errorData = await response.json();
