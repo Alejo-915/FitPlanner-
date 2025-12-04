@@ -1,190 +1,150 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
-from db import get_session
-from models import SesionEntrenamiento, EjercicioCompletado, Rutina, RutinaEjercicio, Ejercicio
+from database import get_session
+from models import SesionEntrenamiento, EjercicioCompletado, Rutina, RutinaEjercicio
+from pydantic import BaseModel
 from datetime import datetime
-from typing import List
 
-router = APIRouter(prefix="/sesiones", tags=["Sesiones de Entrenamiento"])
+router = APIRouter(prefix="/sesiones", tags=["Sesiones"])
 
 
-# ============================================================
-# INICIAR SESIÓN DE ENTRENAMIENTO
-# ============================================================
+class IniciarSesionRequest(BaseModel):
+    usuario_id: int
+    rutina_id: int
+
+
+class CompletarEjercicioRequest(BaseModel):
+    ejercicio_id: int
+
+
 @router.post("/iniciar")
-def iniciar_sesion(usuario_id: int, rutina_id: int, session: Session = Depends(get_session)):
+def iniciar_sesion(data: IniciarSesionRequest, session: Session = Depends(get_session)):
     """Inicia una nueva sesión de entrenamiento"""
+    try:
+        # Verificar que la rutina existe
+        rutina = session.get(Rutina, data.rutina_id)
+        if not rutina:
+            raise HTTPException(status_code=404, detail="Rutina no encontrada")
 
-    # Verificar que la rutina existe
-    rutina = session.get(Rutina, rutina_id)
-    if not rutina:
-        raise HTTPException(status_code=404, detail="Rutina no encontrada")
+        # Verificar si ya hay una sesión activa
+        sesion_activa = session.exec(
+            select(SesionEntrenamiento)
+            .where(SesionEntrenamiento.usuario_id == data.usuario_id)
+            .where(SesionEntrenamiento.completada == False)
+        ).first()
 
-    # Crear nueva sesión
-    nueva_sesion = SesionEntrenamiento(
-        usuario_id=usuario_id,
-        rutina_id=rutina_id,
-        fecha_inicio=datetime.now(),
-        completada=False
-    )
-    session.add(nueva_sesion)
-    session.commit()
-    session.refresh(nueva_sesion)
+        if sesion_activa:
+            raise HTTPException(status_code=400, detail="Ya tienes una sesión activa")
 
-    # Obtener ejercicios de la rutina
-    ejercicios_rutina = session.exec(
-        select(RutinaEjercicio, Ejercicio)
-        .where(RutinaEjercicio.rutina_id == rutina_id)
-        .join(Ejercicio, Ejercicio.id == RutinaEjercicio.ejercicio_id)
-    ).all()
-
-    # Crear registros de ejercicios a completar
-    for rutina_ej, ejercicio in ejercicios_rutina:
-        ejercicio_completado = EjercicioCompletado(
-            sesion_id=nueva_sesion.id,
-            ejercicio_id=ejercicio.id,
-            completado=False
+        # Crear nueva sesión
+        nueva_sesion = SesionEntrenamiento(
+            usuario_id=data.usuario_id,
+            rutina_id=data.rutina_id,
+            fecha_inicio=datetime.now(),
+            completada=False
         )
-        session.add(ejercicio_completado)
+        session.add(nueva_sesion)
+        session.commit()
+        session.refresh(nueva_sesion)
 
-    session.commit()
-    session.refresh(nueva_sesion)
+        # Obtener ejercicios de la rutina
+        ejercicios = session.exec(
+            select(RutinaEjercicio)
+            .where(RutinaEjercicio.rutina_id == data.rutina_id)
+        ).all()
 
-    return {
-        "mensaje": "Sesión iniciada correctamente",
-        "sesion_id": nueva_sesion.id,
-        "rutina": rutina.nombre
-    }
+        # Crear registros de ejercicios a completar
+        for ejercicio_rutina in ejercicios:
+            ejercicio_comp = EjercicioCompletado(
+                sesion_id=nueva_sesion.id,
+                ejercicio_id=ejercicio_rutina.ejercicio_id,
+                series_completadas=0,
+                completado=False
+            )
+            session.add(ejercicio_comp)
 
+        session.commit()
 
-# ============================================================
-# MARCAR EJERCICIO COMO COMPLETADO
-# ============================================================
-@router.patch("/ejercicio/{ejercicio_completado_id}/completar")
-def marcar_ejercicio_completado(
-        ejercicio_completado_id: int,
-        completado: bool,
-        notas: str = None,
-        session: Session = Depends(get_session)
-):
-    """Marca un ejercicio como completado o no completado"""
+        return {
+            "message": "Sesión iniciada correctamente",
+            "sesion_id": nueva_sesion.id,
+            "rutina_id": data.rutina_id,
+            "total_ejercicios": len(ejercicios)
+        }
 
-    ejercicio = session.get(EjercicioCompletado, ejercicio_completado_id)
-    if not ejercicio:
-        raise HTTPException(status_code=404, detail="Ejercicio no encontrado")
-
-    ejercicio.completado = completado
-    if notas:
-        ejercicio.notas = notas
-
-    session.add(ejercicio)
-    session.commit()
-    session.refresh(ejercicio)
-
-    return {
-        "mensaje": "Ejercicio actualizado",
-        "ejercicio_id": ejercicio.ejercicio_id,
-        "completado": ejercicio.completado
-    }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error al iniciar sesión: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error al iniciar sesión: {str(e)}")
 
 
-# ============================================================
-# FINALIZAR SESIÓN
-# ============================================================
-@router.post("/{sesion_id}/finalizar")
-def finalizar_sesion(sesion_id: int, session: Session = Depends(get_session)):
-    """Finaliza una sesión de entrenamiento"""
-
-    sesion = session.get(SesionEntrenamiento, sesion_id)
-    if not sesion:
-        raise HTTPException(status_code=404, detail="Sesión no encontrada")
-
-    sesion.fecha_fin = datetime.now()
-    sesion.completada = True
-
-    session.add(sesion)
-    session.commit()
-    session.refresh(sesion)
-
-    return {
-        "mensaje": "¡Sesión completada exitosamente!",
-        "duracion_minutos": (sesion.fecha_fin - sesion.fecha_inicio).total_seconds() / 60
-    }
-
-
-# ============================================================
-# OBTENER SESIÓN ACTIVA
-# ============================================================
 @router.get("/usuario/{usuario_id}/activa")
 def obtener_sesion_activa(usuario_id: int, session: Session = Depends(get_session)):
-    """Obtiene la sesión activa de un usuario si existe"""
-
-    sesion_activa = session.exec(
+    """Obtiene la sesión activa de un usuario"""
+    sesion = session.exec(
         select(SesionEntrenamiento)
         .where(SesionEntrenamiento.usuario_id == usuario_id)
         .where(SesionEntrenamiento.completada == False)
     ).first()
 
-    if not sesion_activa:
-        return {"sesion_activa": None}
+    if not sesion:
+        return {"sesion_activa": False}
 
-    # Obtener ejercicios de la sesión con detalles
+    # Obtener ejercicios completados
     ejercicios = session.exec(
-        select(EjercicioCompletado, Ejercicio, RutinaEjercicio)
-        .where(EjercicioCompletado.sesion_id == sesion_activa.id)
-        .join(Ejercicio, Ejercicio.id == EjercicioCompletado.ejercicio_id)
-        .join(RutinaEjercicio,
-              (RutinaEjercicio.ejercicio_id == Ejercicio.id) &
-              (RutinaEjercicio.rutina_id == sesion_activa.rutina_id))
+        select(EjercicioCompletado)
+        .where(EjercicioCompletado.sesion_id == sesion.id)
     ).all()
 
-    ejercicios_detalle = [
-        {
-            "id_completado": ej_comp.id,
-            "ejercicio_id": ejercicio.id,
-            "nombre": ejercicio.nombre,
-            "grupo_muscular": ejercicio.grupo_muscular,
-            "video_url": ejercicio.video_url,
-            "descripcion": ejercicio.descripcion,
-            "series": rutina_ej.series,
-            "repeticiones": rutina_ej.repeticiones,
-            "completado": ej_comp.completado,
-            "notas": ej_comp.notas
-        }
-        for ej_comp, ejercicio, rutina_ej in ejercicios
-    ]
-
     return {
-        "sesion_id": sesion_activa.id,
-        "rutina_id": sesion_activa.rutina_id,
-        "fecha_inicio": sesion_activa.fecha_inicio,
-        "ejercicios": ejercicios_detalle
+        "sesion_activa": True,
+        "sesion_id": sesion.id,
+        "rutina_id": sesion.rutina_id,
+        "ejercicios": [
+            {
+                "ejercicio_id": ej.ejercicio_id,
+                "completado": ej.completado,
+                "series_completadas": ej.series_completadas
+            }
+            for ej in ejercicios
+        ]
     }
 
 
-# ============================================================
-# HISTORIAL DE SESIONES
-# ============================================================
-@router.get("/usuario/{usuario_id}/historial")
-def obtener_historial_sesiones(usuario_id: int, session: Session = Depends(get_session)):
-    """Obtiene el historial de sesiones completadas de un usuario"""
+@router.post("/{sesion_id}/completar-ejercicio")
+def completar_ejercicio(
+        sesion_id: int,
+        data: CompletarEjercicioRequest,
+        session: Session = Depends(get_session)
+):
+    """Marca un ejercicio como completado"""
+    ejercicio = session.exec(
+        select(EjercicioCompletado)
+        .where(EjercicioCompletado.sesion_id == sesion_id)
+        .where(EjercicioCompletado.ejercicio_id == data.ejercicio_id)
+    ).first()
 
-    sesiones = session.exec(
-        select(SesionEntrenamiento, Rutina)
-        .where(SesionEntrenamiento.usuario_id == usuario_id)
-        .where(SesionEntrenamiento.completada == True)
-        .join(Rutina, Rutina.id == SesionEntrenamiento.rutina_id)
-        .order_by(SesionEntrenamiento.fecha_inicio.desc())
-    ).all()
+    if not ejercicio:
+        raise HTTPException(status_code=404, detail="Ejercicio no encontrado en esta sesión")
 
-    historial = [
-        {
-            "sesion_id": sesion.id,
-            "rutina": rutina.nombre,
-            "fecha": sesion.fecha_inicio,
-            "duracion_minutos": (sesion.fecha_fin - sesion.fecha_inicio).total_seconds() / 60 if sesion.fecha_fin else 0
-        }
-        for sesion, rutina in sesiones
-    ]
+    ejercicio.completado = True
+    session.add(ejercicio)
+    session.commit()
 
-    return {"historial": historial}
+    return {"message": "Ejercicio completado", "ejercicio_id": data.ejercicio_id}
+
+
+@router.post("/{sesion_id}/finalizar")
+def finalizar_sesion(sesion_id: int, session: Session = Depends(get_session)):
+    """Finaliza una sesión de entrenamiento"""
+    sesion = session.get(SesionEntrenamiento, sesion_id)
+    if not sesion:
+        raise HTTPException(status_code=404, detail="Sesión no encontrada")
+
+    sesion.completada = True
+    sesion.fecha_fin = datetime.now()
+    session.add(sesion)
+    session.commit()
+
+    return {"message": "Sesión finalizada correctamente", "sesion_id": sesion_id}

@@ -1,11 +1,10 @@
 from dotenv import load_dotenv
-load_dotenv()  # Carga variables de entorno del archivo .env
+load_dotenv()
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.middleware.cors import CORSMiddleware
-from db import create_db_and_tables
+from database import create_db_and_tables
 
 from routes.usuario import router as usuario_router
 from routes.ejercicio import router as ejercicio_router
@@ -18,15 +17,6 @@ from routes.pages import router as pages_router
 from routes.sesion import router as sesion_router  # NUEVO
 
 app = FastAPI(title="FitPlanner API")
-
-# CORS middleware para desarrollo
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
@@ -56,6 +46,6 @@ def root():
             "/rutinas_ejercicios",
             "/progresos",
             "/recomendaciones",
-            "/sesiones"  # NUEVO
+            "/sesiones"
         ]
     }

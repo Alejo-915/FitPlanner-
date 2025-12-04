@@ -98,16 +98,6 @@ class Recomendacion(SQLModel, table=True):
 
 
 # =========================================================
-# MODELO OBJETIVO (Nuevo)
-# =========================================================
-class Objetivo(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    titulo: str
-    descripcion: str
-    imagen_url: Optional[str] = None
-
-
-# =========================================================
 # NUEVO: MODELO SESION DE ENTRENAMIENTO
 # =========================================================
 class SesionEntrenamiento(SQLModel, table=True):
@@ -132,7 +122,19 @@ class EjercicioCompletado(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     sesion_id: int = Field(foreign_key="sesionentrenamiento.id")
     ejercicio_id: int = Field(foreign_key="ejercicio.id")
+    series_completadas: int = 0
     completado: bool = False
     notas: Optional[str] = None
 
     sesion: Optional[SesionEntrenamiento] = Relationship(back_populates="ejercicios_completados")
+
+
+# =========================================================
+# MODELO OBJETIVO (Nuevo)
+# =========================================================
+class Objetivo(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    titulo: str
+    descripcion: str
+    imagen_url: Optional[str] = None
+    

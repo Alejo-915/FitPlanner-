@@ -1,5 +1,5 @@
 from sqlalchemy import text
-from db import engine
+from database import engine
 
 
 def add_video_url_column():

@@ -1,5 +1,5 @@
 from sqlmodel import SQLModel
-from db import engine
+from database import engine
 from models import Objetivo
 
 def create_objetivo_table():

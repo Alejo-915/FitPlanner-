@@ -1,5 +1,5 @@
 from sqlmodel import Session, select
-from db import engine
+from database import engine
 from models import Usuario, Ejercicio, Rutina, RutinaEjercicio
 
 

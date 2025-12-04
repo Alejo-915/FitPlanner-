@@ -1,5 +1,5 @@
 from sqlalchemy import text, inspect
-from db import engine
+from database import engine
 
 
 def verify_tables():
