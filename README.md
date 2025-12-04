@@ -9,6 +9,7 @@
 
 ---
 
+
 ## 📋 Tabla de Contenidos
 
 - [Características](#-características)
@@ -348,3 +349,5 @@ Este proyecto fue desarrollado como parte de un proyecto integrador de Desarroll
 - Font Awesome por los iconos
 - DataTables por las tablas interactivas
 - SQLModel por simplificar el trabajo con bases de datos
+
+file:///C:/Users/Asus/Downloads/asi%20era%20mano.pdf.pdf
