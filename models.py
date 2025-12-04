@@ -1,3 +1,6 @@
+# =========================================================
+# IMPORTS
+# =========================================================
 from sqlmodel import SQLModel, Field, Relationship
 from typing import List, Optional
 from datetime import date
@@ -7,8 +10,8 @@ from datetime import date
 # =========================================================
 class RutinaEjercicio(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    rutina_id: int = Field(default=None, foreign_key="rutina.id")
-    ejercicio_id: int = Field(default=None, foreign_key="ejercicio.id")
+    rutina_id: int = Field(foreign_key="rutina.id")
+    ejercicio_id: int = Field(foreign_key="ejercicio.id")
     series: int
     repeticiones: int
     duracion: int  # minutos o segundos, según definas
@@ -42,6 +45,7 @@ class Ejercicio(SQLModel, table=True):
     grupo_muscular: str
     equipo: str
     descripcion: str
+    video_url: Optional[str] = Field(default=None)
 
     rutinas: List["Rutina"] = Relationship(
         back_populates="ejercicios", link_model=RutinaEjercicio
@@ -53,7 +57,7 @@ class Ejercicio(SQLModel, table=True):
 # =========================================================
 class Rutina(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    usuario_id: int = Field(default=None, foreign_key="usuario.id")
+    usuario_id: int = Field(foreign_key="usuario.id")
     nombre: str
     nivel: str
     frecuencia: int
@@ -64,9 +68,12 @@ class Rutina(SQLModel, table=True):
     )
 
 
+# =========================================================
+# MODELO PROGRESO
+# =========================================================
 class Progreso(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    usuario_id: int = Field(default=None, foreign_key="usuario.id")
+    usuario_id: int = Field(foreign_key="usuario.id")
     fecha: date
     peso_actual: float
     repeticiones: int
@@ -74,9 +81,13 @@ class Progreso(SQLModel, table=True):
 
     usuario: Optional[Usuario] = Relationship(back_populates="progresos")
 
+
+# =========================================================
+# MODELO RECOMENDACION
+# =========================================================
 class Recomendacion(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    usuario_id: int = Field(default=None, foreign_key="usuario.id")
+    usuario_id: int = Field(foreign_key="usuario.id")
     imc: float
     descripcion: str
 
@@ -91,3 +102,5 @@ class Objetivo(SQLModel, table=True):
     titulo: str
     descripcion: str
     imagen_url: Optional[str] = None
+
+

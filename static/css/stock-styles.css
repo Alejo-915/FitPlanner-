@@ -462,3 +462,36 @@ RESPONSIVIDAD
         max-width: 320px;
     }
 }
+/* Botón crear ejercicio */
+.button.is-primary {
+    background-color: #0095e0;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.button.is-primary:hover {
+    background-color: #007bb5;
+}
+
+.button.is-link {
+    background-color: #FF0000;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.button.is-link:hover {
+    background-color: #cc0000;
+}
