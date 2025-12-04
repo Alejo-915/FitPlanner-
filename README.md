@@ -13,6 +13,7 @@
 
 - [Características](#-características)
 - [Tecnologías](#-tecnologías)
+- [Modelo de Base de Datos](#-modelo-de-base-de-datos)
 - [Requisitos Previos](#-requisitos-previos)
 - [Instalación](#-instalación)
 - [Configuración](#-configuración)
@@ -62,6 +63,58 @@
 
 ---
 
+## 🗃️ Modelo de Base de Datos
+```
+┌─────────────┐         ┌──────────────┐         ┌─────────────┐
+│   Usuario   │ 1     * │    Rutina    │ *     * │  Ejercicio  │
+│─────────────│◄────────┤──────────────├────────►│─────────────│
+│ id          │         │ id           │         │ id          │
+│ nombre      │         │ nombre       │         │ nombre      │
+│ correo      │         │ nivel        │         │ grupo_musc. │
+│ contraseña  │         │ frecuencia   │         │ equipo      │
+│ edad        │         │ usuario_id   │         │ descripcion │
+│ peso        │         └──────────────┘         │ video_url   │
+│ altura      │                │                 └─────────────┘
+│ objetivo    │                │
+│ activo      │                │
+└─────────────┘                │
+      │                        │
+      │ 1                      │
+      │                   *    │
+      ▼                        │
+┌─────────────┐                │
+│  Progreso   │                │
+│─────────────│                │
+│ id          │                │
+│ usuario_id  │                │
+│ fecha       │         ┌──────▼─────────┐
+│ peso_actual │         │ RutinaEjercicio│
+│ repeticiones│         │ (Tabla Pivot)  │
+│ duracion    │         │────────────────│
+└─────────────┘         │ id             │
+      │                 │ rutina_id      │
+      │ 1               │ ejercicio_id   │
+      │                 │ series         │
+      ▼                 │ repeticiones   │
+┌─────────────┐         │ duracion       │
+│Recomendación│         └────────────────┘
+│─────────────│
+│ id          │
+│ usuario_id  │
+│ imc         │
+│ descripcion │
+└─────────────┘
+```
+
+### Relaciones del Modelo
+
+- **Usuario → Rutina** (1:N): Un usuario puede tener múltiples rutinas personalizadas
+- **Rutina ↔ Ejercicio** (N:M): Una rutina contiene varios ejercicios y un ejercicio puede estar en múltiples rutinas (relación a través de RutinaEjercicio)
+- **Usuario → Progreso** (1:N): Un usuario tiene múltiples registros de progreso a lo largo del tiempo
+- **Usuario → Recomendación** (1:1): Cada usuario tiene una recomendación personalizada basada en su IMC y objetivo
+
+---
+
 ## 📦 Requisitos Previos
 
 - Python 3.13 o superior
@@ -74,14 +127,12 @@
 ## 🚀 Instalación
 
 ### 1. Clonar el repositorio
-
 ```bash
-git clone https://github.com/tu-usuario/fitplanner.git
+git clone https://github.com/Alejo-915/FitPlanner.git
 cd fitplanner
 ```
 
 ### 2. Crear entorno virtual
-
 ```bash
 python -m venv .venv
 ```
@@ -99,7 +150,6 @@ source .venv/bin/activate
 ```
 
 ### 4. Instalar dependencias
-
 ```bash
 pip install -r requirements.txt
 ```
@@ -107,15 +157,13 @@ pip install -r requirements.txt
 ### 5. Configurar variables de entorno
 
 Crea un archivo `.env` en la raíz del proyecto:
-
 ```env
 DATABASE_URL=sqlite:///fitplanner.db
 ```
 
 ### 6. Crear la base de datos
-
 ```bash
-python -c "from db import create_db_and_tables; create_db_and_tables()"
+python -c "from database import create_db_and_tables; create_db_and_tables()"
 ```
 
 ---
@@ -129,7 +177,6 @@ Por defecto, FitPlanner usa SQLite para desarrollo local. Para usar PostgreSQL e
 1. Instala PostgreSQL
 2. Crea una base de datos
 3. Actualiza el archivo `.env`:
-
 ```env
 DATABASE_URL=postgresql://usuario:contraseña@localhost/fitplanner
 ```
@@ -137,7 +184,6 @@ DATABASE_URL=postgresql://usuario:contraseña@localhost/fitplanner
 ### Migraciones
 
 Si necesitas agregar columnas o modificar la estructura:
-
 ```bash
 # Ejemplo: Agregar columna video_url a ejercicios
 python scripts/add_video_url_to_ejercicio.py
@@ -151,7 +197,6 @@ python scripts/migrate_usuario_nullable.py
 ## 💻 Uso
 
 ### Iniciar el servidor de desarrollo
-
 ```bash
 uvicorn main:app --reload
 ```
@@ -170,7 +215,6 @@ La aplicación estará disponible en: `http://127.0.0.1:8000`
 ---
 
 ## 📁 Estructura del Proyecto
-
 ```
 FitPlanner/
 │
@@ -182,6 +226,7 @@ FitPlanner/
 │   ├── rutina_ejercicio.py     # Relación Rutinas-Ejercicios
 │   ├── progreso.py             # Seguimiento de progreso
 │   ├── recomendacion.py        # Recomendaciones
+│   ├── sesion.py               # Gestión de sesiones de entrenamiento
 │   └── pages.py                # Rutas de páginas HTML
 │
 ├── templates/                   # Plantillas HTML
@@ -196,7 +241,7 @@ FitPlanner/
 ├── scripts/                     # Scripts de migración
 │
 ├── models.py                    # Modelos de base de datos
-├── db.py                       # Configuración de base de datos
+├── database.py                  # Configuración de base de datos
 ├── main.py                     # Punto de entrada de la aplicación
 ├── requirements.txt            # Dependencias Python
 └── .env                        # Variables de entorno (no incluido)
@@ -215,7 +260,7 @@ FitPlanner/
 - `GET /usuarios/{id}` - Obtener usuario por ID
 - `POST /usuarios/` - Crear usuario
 - `PATCH /usuarios/{id}` - Actualizar usuario
-- `DELETE /usuarios/{id}` - Desactivar usuario
+- `DELETE /usuarios/{id}` - Desactivar usuario (soft delete)
 
 ### Ejercicios
 - `GET /ejercicios/` - Listar ejercicios
@@ -231,13 +276,24 @@ FitPlanner/
 - `PATCH /rutinas/{id}` - Actualizar rutina
 - `DELETE /rutinas/{id}` - Eliminar rutina
 
+### Rutina-Ejercicio
+- `POST /rutinas_ejercicios/` - Asignar ejercicio a rutina
+- `GET /rutinas_ejercicios/` - Listar relaciones
+- `PATCH /rutinas_ejercicios/{id}` - Actualizar parámetros
+- `DELETE /rutinas_ejercicios/{id}` - Eliminar asignación
+
 ### Progreso
 - `GET /progresos/` - Listar registros de progreso
 - `POST /progresos/` - Crear registro de progreso
 
 ### Recomendaciones
 - `GET /recomendaciones/{usuario_id}` - Obtener recomendación
-- `POST /recomendaciones/` - Crear recomendación
+- `POST /recomendaciones/` - Crear recomendación personalizada
+
+### Sesiones de Entrenamiento
+- `POST /sesiones/iniciar` - Iniciar sesión de entrenamiento
+- `GET /sesiones/usuario/{usuario_id}/activa` - Obtener sesión activa
+- `POST /sesiones/{id}/finalizar` - Finalizar sesión
 
 📚 **Documentación completa**: Accede a `/docs` para ver la documentación interactiva de Swagger.
 
@@ -246,17 +302,20 @@ FitPlanner/
 ## 🌐 Despliegue
 
 ### Desarrollo Local
-
 ```bash
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ### Producción con Gunicorn
-
 ```bash
 gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
 ```
 
+### Despliegue en Render
+
+La aplicación está desplegada en: **https://fitplanner-6m4r.onrender.com**
+
+---
 
 ## 🤝 Contribución
 
@@ -278,12 +337,7 @@ Este proyecto fue desarrollado como parte de un proyecto integrador de Desarroll
 
 ## 👥 Autores
 
-- edwin alejandro lopez monetro 
-
----
-
-
-
+- **Edwin Alejandro López Montero** - [GitHub](https://github.com/Alejo-915)
 
 ---
 
@@ -293,3 +347,4 @@ Este proyecto fue desarrollado como parte de un proyecto integrador de Desarroll
 - Bulma CSS por el diseño responsive
 - Font Awesome por los iconos
 - DataTables por las tablas interactivas
+- SQLModel por simplificar el trabajo con bases de datos
