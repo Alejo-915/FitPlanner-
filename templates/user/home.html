@@ -6,149 +6,523 @@
     <title>Mi Panel - FitPlanner</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../../static/css/main.css">
-    <link rel="stylesheet" href="../../static/css/dashboard.css">
+    <style>
+        :root {
+            --primary-red: #E30005;
+            --dark-blue: #273348;
+            --blue-gray: #7D89A1;
+        }
+
+        body {
+            background-color: #f5f7fa;
+        }
+
+        .dashboard-nav {
+            background-color: var(--dark-blue);
+            padding: 1rem 2rem;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .perfil-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .ejercicio-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .ejercicio-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .ejercicio-card.completado {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4caf50;
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .checkbox-completado {
+            transform: scale(1.5);
+            margin-right: 1rem;
+            cursor: pointer;
+        }
+
+        .rutina-selector {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .rutina-option {
+            padding: 1.5rem;
+            border: 2px solid #e2e2e2;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .rutina-option:hover {
+            border-color: var(--primary-red);
+            background-color: #fff5f5;
+        }
+
+        .btn-finalizar {
+            background-color: #4caf50;
+            color: white;
+            font-weight: 600;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-finalizar:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .calendar-btn {
+            background-color: var(--dark-blue);
+            color: white;
+            padding: 0.75rem;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .calendar-btn:hover {
+            background-color: #1a2230;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Navbar Superior -->
+    <!-- Navbar -->
     <nav class="dashboard-nav">
         <div class="nav-brand">
             <i class="fas fa-dumbbell"></i> FITPLANNER
         </div>
         <div class="nav-user">
-            <span id="nav-user-name">Hola, Usuario</span>
-            <div class="image is-32x32">
-                <img id="user-avatar" class="is-rounded" src="https://ui-avatars.com/api/?name=User&background=E30005&color=fff" alt="User">
-            </div>
+            <span>Cargando...</span>
+            <span id="userName" style="margin-left: 1rem; font-weight: 600;"></span>
         </div>
     </nav>
 
-    <div class="dashboard-container">
-        <!-- Primera Fila: 3 Columnas -->
-        <div class="columns is-desktop">
-            
-            <!-- Caja 1: Perfil del Usuario -->
-            <div class="column is-4-desktop is-12-tablet">
-                <div class="bento-card profile-card">
-                    <h3 class="bento-title">
-                        Mi Perfil
-                        <i class="fas fa-id-card" style="color: var(--accent-red);"></i>
-                    </h3>
-                    
-                    <div class="content">
-                        <h4 class="title is-5" id="profile-name">Cargando...</h4>
-                        <div class="profile-stats">
-                            <div class="stat-item">
-                                <span>Edad</span>
-                                <span class="stat-value" id="profile-age">-- años</span>
-                            </div>
-                            <div class="stat-item">
-                                <span>Peso Actual</span>
-                                <span class="stat-value" id="profile-weight">-- kg</span>
-                            </div>
-                            <div class="stat-item">
-                                <span>Altura</span>
-                                <span class="stat-value" id="profile-height">-- cm</span>
-                            </div>
-                            <div class="stat-item">
-                                <span>Objetivo</span>
-                                <span class="stat-value" id="profile-goal" style="color: var(--accent-red);">--</span>
-                            </div>
+    <div class="container" id="app">
+
+        <!-- Vista: Sin Sesión Activa (Perfil + Selección) -->
+        <div id="vistaSeleccion" style="display: none;">
+            <div class="columns">
+                <!-- Columna Izquierda: Perfil -->
+                <div class="column is-4">
+                    <div class="perfil-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 class="title is-5">Mi Perfil</h3>
+                            <i class="fas fa-id-card" style="color: var(--primary-red); font-size: 1.5rem;"></i>
+                        </div>
+
+                        <h4 class="title is-5" id="perfilNombre">EDWIN pere</h4>
+
+                        <div class="stat-item">
+                            <span style="color: #7a7a7a;">Edad</span>
+                            <strong id="perfilEdad">13 años</strong>
+                        </div>
+                        <div class="stat-item">
+                            <span style="color: #7a7a7a;">Peso Actual</span>
+                            <strong id="perfilPeso">67 kg</strong>
+                        </div>
+                        <div class="stat-item">
+                            <span style="color: #7a7a7a;">Altura</span>
+                            <strong id="perfilAltura">1.90 m</strong>
+                        </div>
+                        <div class="stat-item" style="border-bottom: none;">
+                            <span style="color: #7a7a7a;">Objetivo</span>
+                            <strong style="color: var(--primary-red);" id="perfilObjetivo">Perder peso</strong>
+                        </div>
+
+                        <div class="calendar-btn">
+                            <i class="fas fa-calendar-alt"></i> Ver Calendario
                         </div>
                     </div>
-
-                    <div class="calendar-btn">
-                        <i class="fas fa-calendar-alt"></i> Ver Calendario
-                    </div>
                 </div>
-            </div>
 
-            <!-- Caja 2: Progreso -->
-            <div class="column is-4-desktop is-6-tablet">
-                <div class="bento-card progress-card">
-                    <h3 class="bento-title">
-                        Progreso Semanal
-                        <i class="fas fa-chart-line" style="color: var(--primary-green);"></i>
-                    </h3>
-                    <div class="progress-placeholder">
-                        <div class="has-text-centered">
-                            <i class="fas fa-chart-area fa-3x mb-3" style="opacity: 0.3;"></i>
-                            <p>Gráfico de Actividad</p>
+                <!-- Columna Derecha: Selección de Rutinas -->
+                <div class="column is-8">
+                    <div class="rutina-selector">
+                        <h1 class="title is-3 has-text-centered mb-5">
+                            <i class="fas fa-clipboard-list"></i> Selecciona tu Rutina
+                        </h1>
+                        <div id="listaRutinas">
+                            <p class="has-text-centered">Cargando rutinas...</p>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Caja 3: Recomendaciones -->
-            <div class="column is-4-desktop is-6-tablet">
-                <div class="bento-card recommendations-card">
-                    <h3 class="bento-title">
-                        Recomendaciones
-                        <i class="fas fa-lightbulb" style="color: #FFD700;"></i>
-                    </h3>
-                    <div class="content is-small">
-                        <ul>
-                            <li>Hidratarse bien antes de entrenar.</li>
-                            <li>Descansar 8 horas diarias.</li>
-                            <li>Aumentar ingesta de proteínas.</li>
-                        </ul>
+        <!-- Vista: Sesión Activa (Checkout) -->
+        <div id="vistaSesion" style="display: none;">
+
+            <!-- Header con progreso -->
+            <div class="box">
+                <div class="level is-mobile">
+                    <div class="level-left">
+                        <div class="level-item">
+                            <h1 class="title is-4" id="tituloRutina">
+                                <i class="fas fa-fire"></i> Rutina en Progreso
+                            </h1>
+                        </div>
+                    </div>
+                    <div class="level-right">
+                        <div class="level-item">
+                            <button class="btn-finalizar" onclick="finalizarSesion()">
+                                <i class="fas fa-check-circle"></i> Finalizar Rutina
+                            </button>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Barra de Progreso -->
+                <div style="margin: 1.5rem 0;">
+                    <p class="has-text-centered mb-2">
+                        <strong id="progresoTexto">0 de 0 ejercicios completados</strong>
+                    </p>
+                    <progress class="progress is-success" id="progresoBar" value="0" max="100">0%</progress>
+                </div>
+            </div>
+
+            <!-- Lista de Ejercicios -->
+            <div id="listaEjercicios">
+                <p class="has-text-centered">Cargando ejercicios...</p>
             </div>
 
         </div>
 
-        <!-- Segunda Fila: Caja Grande (Rutina) -->
-        <div class="columns">
-            <div class="column is-12">
-                <div class="bento-card routine-card">
-                    <h3 class="bento-title">
-                        Rutina de Hoy: Torso / Hipertrofia
-                        <button class="button is-small is-rounded is-outlined">
-                            <span class="icon"><i class="fas fa-play"></i></span>
-                            <span>Iniciar</span>
-                        </button>
-                    </h3>
-                    
-                    <div class="table-container">
-                        <table class="table is-fullwidth is-hoverable">
-                            <thead>
-                                <tr>
-                                    <th>Ejercicio</th>
-                                    <th>Series</th>
-                                    <th>Reps</th>
-                                    <th>Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Press Banca Plano</td>
-                                    <td>4</td>
-                                    <td>8-10</td>
-                                    <td><span class="tag is-warning">Pendiente</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Remo con Barra</td>
-                                    <td>4</td>
-                                    <td>10-12</td>
-                                    <td><span class="tag is-warning">Pendiente</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Press Militar</td>
-                                    <td>3</td>
-                                    <td>12-15</td>
-                                    <td><span class="tag is-warning">Pendiente</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <script src="../../static/js/main.js"></script>
-    <script src="../../static/js/user_home.js"></script>
+    <script>
+        let sesionActiva = null;
+        let usuarioId = 1; // TODO: Obtener del localStorage o sesión
+        let usuarioData = null;
+
+        // Cargar datos al inicio
+        document.addEventListener('DOMContentLoaded', async () => {
+            await cargarUsuario();
+            await verificarSesionActiva();
+        });
+
+        // Cargar datos del usuario
+        async function cargarUsuario() {
+            try {
+                const response = await fetch(`/usuarios/${usuarioId}`);
+                if (!response.ok) {
+                    throw new Error('Usuario no encontrado');
+                }
+                usuarioData = await response.json();
+
+                console.log('Datos de usuario cargados:', usuarioData);
+
+                document.getElementById('userName').textContent = usuarioData.nombre || 'Usuario';
+                document.getElementById('perfilNombre').textContent = usuarioData.nombre || 'Sin nombre';
+                document.getElementById('perfilEdad').textContent = usuarioData.edad ? `${usuarioData.edad} años` : 'No registrado';
+                document.getElementById('perfilPeso').textContent = usuarioData.peso ? `${usuarioData.peso} kg` : 'No registrado';
+                document.getElementById('perfilAltura').textContent = usuarioData.altura ? `${usuarioData.altura} m` : 'No registrado';
+                document.getElementById('perfilObjetivo').textContent = usuarioData.objetivo || 'Sin objetivo';
+            } catch (error) {
+                console.error('Error al cargar usuario:', error);
+                document.getElementById('userName').textContent = 'Error al cargar';
+            }
+        }
+
+        // Verificar si hay sesión activa
+        async function verificarSesionActiva() {
+            try {
+                const response = await fetch(`/sesiones/usuario/${usuarioId}/activa`);
+                const data = await response.json();
+
+                console.log('Datos de sesión activa:', data);
+
+                if (data.sesion_id) {
+                    sesionActiva = data;
+                    mostrarVistaSesion();
+                } else {
+                    await cargarRutinas();
+                    mostrarVistaSeleccion();
+                }
+            } catch (error) {
+                console.error('Error al verificar sesión:', error);
+                await cargarRutinas();
+                mostrarVistaSeleccion();
+            }
+        }
+
+        // Cargar rutinas disponibles
+        async function cargarRutinas() {
+            try {
+                const response = await fetch('/rutinas/');
+                const data = await response.json();
+
+                console.log('Rutinas cargadas:', data);
+
+                const listaRutinas = document.getElementById('listaRutinas');
+                listaRutinas.innerHTML = '';
+
+                if (data.rutinas && data.rutinas.length > 0) {
+                    data.rutinas.forEach(rutina => {
+                        const div = document.createElement('div');
+                        div.className = 'rutina-option';
+                        div.innerHTML = `
+                            <div class="level is-mobile">
+                                <div class="level-left">
+                                    <div>
+                                        <h3 class="title is-5">${rutina.nombre_rutina}</h3>
+                                        <p class="subtitle is-6">Nivel: ${rutina.nivel} | ${rutina.ejercicios.length} ejercicios</p>
+                                    </div>
+                                </div>
+                                <div class="level-right">
+                                    <button class="button is-danger" onclick="iniciarRutina(${rutina.id})">
+                                        <span class="icon"><i class="fas fa-play"></i></span>
+                                        <span>Iniciar</span>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        listaRutinas.appendChild(div);
+                    });
+                } else {
+                    listaRutinas.innerHTML = '<p class="has-text-centered has-text-grey">No hay rutinas disponibles</p>';
+                }
+            } catch (error) {
+                console.error('Error al cargar rutinas:', error);
+                document.getElementById('listaRutinas').innerHTML = '<p class="has-text-centered has-text-danger">Error al cargar rutinas</p>';
+            }
+        }
+
+        // Iniciar rutina
+        async function iniciarRutina(rutinaId) {
+            console.log('Iniciando rutina:', rutinaId);
+
+            // Deshabilitar botón
+            event.target.disabled = true;
+            event.target.innerHTML = '<span class="icon"><i class="fas fa-spinner fa-spin"></i></span><span>Iniciando...</span>';
+
+            try {
+                const response = await fetch('/sesiones/iniciar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        usuario_id: parseInt(usuarioId),
+                        rutina_id: parseInt(rutinaId)
+                    })
+                });
+
+                const result = await response.json();
+                console.log('Respuesta de inicio:', result);
+
+                if (response.ok) {
+                    console.log('✅ Sesión iniciada correctamente');
+                    await verificarSesionActiva();
+                } else {
+                    throw new Error(result.detail || 'Error al iniciar rutina');
+                }
+            } catch (error) {
+                console.error('❌ Error completo:', error);
+                alert('Error al iniciar rutina: ' + error.message);
+                // Re-habilitar botón
+                event.target.disabled = false;
+                event.target.innerHTML = '<span class="icon"><i class="fas fa-play"></i></span><span>Iniciar</span>';
+            }
+        }
+
+        // Mostrar vista de sesión activa
+        function mostrarVistaSesion() {
+            console.log('Mostrando vista de sesión con datos:', sesionActiva);
+            document.getElementById('vistaSeleccion').style.display = 'none';
+            document.getElementById('vistaSesion').style.display = 'block';
+            renderizarEjercicios();
+        }
+
+        // Mostrar vista de selección
+        function mostrarVistaSeleccion() {
+            document.getElementById('vistaSeleccion').style.display = 'block';
+            document.getElementById('vistaSesion').style.display = 'none';
+        }
+
+        // Renderizar ejercicios de la sesión
+        function renderizarEjercicios() {
+            const ejercicios = sesionActiva.ejercicios;
+            console.log('Renderizando ejercicios:', ejercicios);
+
+            const container = document.getElementById('listaEjercicios');
+            container.innerHTML = '';
+
+            if (!ejercicios || ejercicios.length === 0) {
+                container.innerHTML = '<p class="has-text-centered has-text-grey">No hay ejercicios en esta rutina</p>';
+                return;
+            }
+
+            ejercicios.forEach((ej, index) => {
+                const card = document.createElement('div');
+                card.className = `ejercicio-card ${ej.completado ? 'completado' : ''}`;
+
+                // Extraer ID de video de YouTube
+                let videoEmbed = '';
+                if (ej.video_url) {
+                    const videoId = extraerVideoId(ej.video_url);
+                    if (videoId) {
+                        videoEmbed = `
+                            <div class="video-container">
+                                <iframe
+                                    src="https://www.youtube.com/embed/${videoId}"
+                                    frameborder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen>
+                                </iframe>
+                            </div>
+                        `;
+                    }
+                }
+
+                card.innerHTML = `
+                    <div class="level is-mobile">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <input
+                                    type="checkbox"
+                                    class="checkbox-completado"
+                                    ${ej.completado ? 'checked' : ''}
+                                    onchange="marcarCompletado(${ej.id_completado}, this.checked)"
+                                >
+                            </div>
+                            <div class="level-item">
+                                <div>
+                                    <h3 class="title is-5 mb-2">${index + 1}. ${ej.nombre}</h3>
+                                    <p class="subtitle is-6 mb-1">
+                                        <span class="tag is-info">${ej.grupo_muscular}</span>
+                                        <strong style="margin-left: 1rem;">${ej.series} series × ${ej.repeticiones} reps</strong>
+                                    </p>
+                                    <p class="is-size-7 has-text-grey">${ej.descripcion}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    ${videoEmbed}
+                `;
+                container.appendChild(card);
+            });
+
+            actualizarProgreso();
+        }
+
+        // Extraer ID de video de YouTube
+        function extraerVideoId(url) {
+            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
+        // Marcar ejercicio como completado
+        async function marcarCompletado(idCompletado, completado) {
+            console.log('Marcando ejercicio:', idCompletado, completado);
+            try {
+                const response = await fetch(`/sesiones/ejercicio/${idCompletado}/completar?completado=${completado}`, {
+                    method: 'PATCH'
+                });
+
+                if (response.ok) {
+                    const ejercicio = sesionActiva.ejercicios.find(e => e.id_completado === idCompletado);
+                    if (ejercicio) {
+                        ejercicio.completado = completado;
+                    }
+                    renderizarEjercicios();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Actualizar barra de progreso
+        function actualizarProgreso() {
+            const total = sesionActiva.ejercicios.length;
+            const completados = sesionActiva.ejercicios.filter(e => e.completado).length;
+            const porcentaje = (completados / total) * 100;
+
+            document.getElementById('progresoTexto').textContent = `${completados} de ${total} ejercicios completados`;
+            document.getElementById('progresoBar').value = porcentaje;
+        }
+
+        // Finalizar sesión
+        async function finalizarSesion() {
+            const completados = sesionActiva.ejercicios.filter(e => e.completado).length;
+            const total = sesionActiva.ejercicios.length;
+
+            if (completados < total) {
+                if (!confirm(`Has completado ${completados} de ${total} ejercicios. ¿Deseas finalizar de todas formas?`)) {
+                    return;
+                }
+            }
+
+            try {
+                const response = await fetch(`/sesiones/${sesionActiva.sesion_id}/finalizar`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    alert('¡Rutina completada exitosamente! 🎉');
+                    sesionActiva = null;
+                    await verificarSesionActiva();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al finalizar sesión');
+            }
+        }
+    </script>
+
 </body>
 </html>

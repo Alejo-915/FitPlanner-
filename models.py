@@ -3,7 +3,8 @@
 # =========================================================
 from sqlmodel import SQLModel, Field, Relationship
 from typing import List, Optional
-from datetime import date
+from datetime import date, datetime
+
 
 # =========================================================
 # MODELO INTERMEDIO: RutinaEjercicio (N:M + datos)
@@ -34,6 +35,7 @@ class Usuario(SQLModel, table=True):
     rutinas: List["Rutina"] = Relationship(back_populates="usuario")
     progresos: List["Progreso"] = Relationship(back_populates="usuario")
     recomendacion: Optional["Recomendacion"] = Relationship(back_populates="usuario")
+    sesiones: List["SesionEntrenamiento"] = Relationship(back_populates="usuario")
 
 
 # =========================================================
@@ -66,10 +68,11 @@ class Rutina(SQLModel, table=True):
     ejercicios: List[Ejercicio] = Relationship(
         back_populates="rutinas", link_model=RutinaEjercicio
     )
+    sesiones: List["SesionEntrenamiento"] = Relationship(back_populates="rutina")
 
 
 # =========================================================
-# MODELO PROGRESO
+# MODELO PROGRESO (Mantenido para historial)
 # =========================================================
 class Progreso(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -103,3 +106,33 @@ class Objetivo(SQLModel, table=True):
     descripcion: str
     imagen_url: Optional[str] = None
 
+
+# =========================================================
+# NUEVO: MODELO SESION DE ENTRENAMIENTO
+# =========================================================
+class SesionEntrenamiento(SQLModel, table=True):
+    """Representa una sesión de entrenamiento completada o en progreso"""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    usuario_id: int = Field(foreign_key="usuario.id")
+    rutina_id: int = Field(foreign_key="rutina.id")
+    fecha_inicio: datetime = Field(default_factory=datetime.now)
+    fecha_fin: Optional[datetime] = None
+    completada: bool = False
+
+    usuario: Optional[Usuario] = Relationship(back_populates="sesiones")
+    rutina: Optional[Rutina] = Relationship(back_populates="sesiones")
+    ejercicios_completados: List["EjercicioCompletado"] = Relationship(back_populates="sesion")
+
+
+# =========================================================
+# NUEVO: EJERCICIO COMPLETADO EN UNA SESIÓN
+# =========================================================
+class EjercicioCompletado(SQLModel, table=True):
+    """Trackea qué ejercicios se completaron en una sesión"""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    sesion_id: int = Field(foreign_key="sesionentrenamiento.id")
+    ejercicio_id: int = Field(foreign_key="ejercicio.id")
+    completado: bool = False
+    notas: Optional[str] = None
+
+    sesion: Optional[SesionEntrenamiento] = Relationship(back_populates="ejercicios_completados")
