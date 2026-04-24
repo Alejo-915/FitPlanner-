@@ -6,145 +6,222 @@
     <title>Registro - FitPlanner</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../../static/css/main.css">
-    <link rel="stylesheet" href="../../static/css/auth.css">
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/auth.css">
 </head>
 <body>
-    <div class="auth-container">
-        <a href="/home" class="back-link">
-            <i class="fas fa-arrow-left"></i> Volver al inicio
-        </a>
+<div class="auth-container">
+    <a href="/home" class="back-link">
+        <i class="fas fa-arrow-left"></i> Volver al inicio
+    </a>
 
-        <div class="auth-card register">
-            <div class="logo-section">
-                <i class="fas fa-dumbbell logo-icon"></i>
-                <h1 class="title is-4" style="color: var(--primary-red); margin: 0;">FitPlanner</h1>
+    <div class="auth-card register" style="max-width:560px;">
+        <div class="logo-section">
+            <i class="fas fa-dumbbell logo-icon"></i>
+            <h1 class="title is-4" style="color:var(--primary-red);margin:0;">FitPlanner</h1>
+        </div>
+
+        <div class="auth-header">
+            <h2 class="auth-title">Crear Cuenta</h2>
+            <p class="auth-subtitle">Únete a FitPlanner y comienza tu transformación fitness</p>
+        </div>
+
+        <form id="registerForm">
+
+            <!-- Nombre y Apellido -->
+            <div class="columns columns-custom">
+                <div class="column">
+                    <div class="field field-custom">
+                        <label class="label" style="color:var(--dark-blue);">Nombre</label>
+                        <div class="control has-icons-left">
+                            <input class="input input-custom" type="text" id="firstName" placeholder="Tu nombre" required>
+                            <span class="icon is-small is-left"><i class="fas fa-user" style="color:var(--blue-gray);"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="field field-custom">
+                        <label class="label" style="color:var(--dark-blue);">Apellido</label>
+                        <div class="control has-icons-left">
+                            <input class="input input-custom" type="text" id="lastName" placeholder="Tu apellido" required>
+                            <span class="icon is-small is-left"><i class="fas fa-user" style="color:var(--blue-gray);"></i></span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="auth-header">
-                <h2 class="auth-title">Crear Cuenta</h2>
-                <p class="auth-subtitle">Únete a FitPlanner y comienza tu transformación fitness</p>
+            <!-- Email -->
+            <div class="field field-custom">
+                <label class="label" style="color:var(--dark-blue);">Email</label>
+                <div class="control has-icons-left">
+                    <input class="input input-custom" type="email" id="email" placeholder="tu@email.com" required>
+                    <span class="icon is-small is-left"><i class="fas fa-envelope" style="color:var(--blue-gray);"></i></span>
+                </div>
             </div>
 
-            <form id="registerForm">
-                <div class="columns columns-custom">
-                    <div class="column">
-                        <div class="field field-custom">
-                            <label class="label" style="color: var(--dark-blue);">Nombre</label>
-                            <div class="control has-icons-left">
-                                <input class="input input-custom" type="text" id="firstName" placeholder="Tu nombre" required>
-                                <span class="icon is-small is-left">
-                                    <i class="fas fa-user" style="color: var(--blue-gray);"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="column">
-                        <div class="field field-custom">
-                            <label class="label" style="color: var(--dark-blue);">Apellido</label>
-                            <div class="control has-icons-left">
-                                <input class="input input-custom" type="text" id="lastName" placeholder="Tu apellido" required>
-                                <span class="icon is-small is-left">
-                                    <i class="fas fa-user" style="color: var(--blue-gray);"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Contraseña -->
+            <div class="field field-custom">
+                <label class="label" style="color:var(--dark-blue);">Contraseña</label>
+                <div class="control has-icons-left">
+                    <input class="input input-custom" type="password" id="password" placeholder="••••••••" required>
+                    <span class="icon is-small is-left"><i class="fas fa-lock" style="color:var(--blue-gray);"></i></span>
                 </div>
-
-                <div class="field field-custom">
-                    <label class="label" style="color: var(--dark-blue);">Email</label>
-                    <div class="control has-icons-left">
-                        <input class="input input-custom" type="email" id="email" placeholder="tu@email.com" required>
-                        <span class="icon is-small is-left">
-                            <i class="fas fa-envelope" style="color: var(--blue-gray);"></i>
-                        </span>
-                    </div>
-                </div>
-
-                <div class="field field-custom">
-                    <label class="label" style="color: var(--dark-blue);">Contraseña</label>
-                    <div class="control has-icons-left">
-                        <input class="input input-custom" type="password" id="password" placeholder="••••••••" required>
-                        <span class="icon is-small is-left">
-                            <i class="fas fa-lock" style="color: var(--blue-gray);"></i>
-                        </span>
-                    </div>
-                    <div class="password-strength" id="passwordStrength"></div>
-                </div>
-
-                <div class="field field-custom">
-                    <label class="label" style="color: var(--dark-blue);">Confirmar Contraseña</label>
-                    <div class="control has-icons-left">
-                        <input class="input input-custom" type="password" id="confirmPassword" placeholder="••••••••" required>
-                        <span class="icon is-small is-left">
-                            <i class="fas fa-lock" style="color: var(--blue-gray);"></i>
-                        </span>
-                    </div>
-                </div>
-
-                <div class="columns columns-custom">
-                    <div class="column">
-                        <div class="field field-custom">
-                            <label class="label" style="color: var(--dark-blue);">Edad</label>
-                            <div class="control has-icons-left">
-                                <input class="input input-custom" type="number" id="age" placeholder="25" min="13" max="100" required>
-                                <span class="icon is-small is-left">
-                                    <i class="fas fa-calendar" style="color: var(--blue-gray);"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="column">
-                        <div class="field field-custom">
-                            <label class="label" style="color: var(--dark-blue);">Objetivo</label>
-                            <div class="control has-icons-left">
-                                <div class="select is-fullwidth">
-                                    <select class="input-custom" id="goal" required>
-                                        <option value="">Selecciona tu objetivo</option>
-                                        <option value="lose_weight">Perder peso</option>
-                                        <option value="gain_muscle">Ganar músculo</option>
-                                        <option value="maintain">Mantener forma</option>
-                                        <option value="improve_endurance">Mejorar resistencia</option>
-                                    </select>
-                                </div>
-                                <span class="icon is-small is-left">
-                                    <i class="fas fa-target" style="color: var(--blue-gray);"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="field">
-                    <div class="control">
-                        <label class="checkbox" style="color: var(--blue-gray);">
-                            <input type="checkbox" id="terms" required>
-                            Acepto los <a href="#" style="color: var(--primary-red);">términos y condiciones</a>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="field">
-                    <div class="control">
-                        <button class="button btn-register" type="submit">
-                            <span class="icon">
-                                <i class="fas fa-user-plus"></i>
-                            </span>
-                            <span>Crear Cuenta</span>
-                        </button>
-                    </div>
-                </div>
-            </form>
-
-            <div class="auth-links">
-                <p style="color: var(--blue-gray);">
-                    ¿Ya tienes cuenta? <a href="/login">Inicia sesión aquí</a>
-                </p>
+                <div class="password-strength" id="passwordStrength"></div>
             </div>
+
+            <div class="field field-custom">
+                <label class="label" style="color:var(--dark-blue);">Confirmar Contraseña</label>
+                <div class="control has-icons-left">
+                    <input class="input input-custom" type="password" id="confirmPassword" placeholder="••••••••" required>
+                    <span class="icon is-small is-left"><i class="fas fa-lock" style="color:var(--blue-gray);"></i></span>
+                </div>
+            </div>
+
+            <!-- Edad / Objetivo -->
+            <div class="columns columns-custom">
+                <div class="column">
+                    <div class="field field-custom">
+                        <label class="label" style="color:var(--dark-blue);">Edad</label>
+                        <div class="control has-icons-left">
+                            <input class="input input-custom" type="number" id="age" placeholder="25" min="13" max="100" required>
+                            <span class="icon is-small is-left"><i class="fas fa-calendar" style="color:var(--blue-gray);"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="field field-custom">
+                        <label class="label" style="color:var(--dark-blue);">Objetivo</label>
+                        <div class="control">
+                            <div class="select is-fullwidth">
+                                <select id="goal" required>
+                                    <option value="">Selecciona tu objetivo</option>
+                                    <option value="bajar de peso">Bajar de peso</option>
+                                    <option value="ganar masa muscular">Ganar masa muscular</option>
+                                    <option value="mantener forma">Mantener forma</option>
+                                    <option value="mejorar resistencia">Mejorar resistencia</option>
+                                    <option value="perder grasa">Perder grasa</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Peso / Altura -->
+            <div class="columns columns-custom">
+                <div class="column">
+                    <div class="field field-custom">
+                        <label class="label" style="color:var(--dark-blue);">Peso (kg)</label>
+                        <input class="input input-custom" type="number" step="0.1" id="peso" placeholder="70">
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="field field-custom">
+                        <label class="label" style="color:var(--dark-blue);">Altura (cm)</label>
+                        <input class="input input-custom" type="number" id="altura" placeholder="170">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tiempo sin ejercicio -->
+            <div class="field field-custom">
+                <label class="label" style="color:var(--dark-blue);">
+                    <i class="fas fa-clock" style="color:var(--primary-red);margin-right:6px;"></i>
+                    ¿Cuánto tiempo llevas sin hacer ejercicio?
+                </label>
+                <div class="control">
+                    <div class="select is-fullwidth">
+                        <select id="meses_sin_ejercicio">
+                            <option value="0">Entreno regularmente</option>
+                            <option value="1">Menos de 1 mes</option>
+                            <option value="3">1 a 3 meses</option>
+                            <option value="6">3 a 6 meses</option>
+                            <option value="12">6 meses a 1 año</option>
+                            <option value="24">Más de 1 año</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Días por semana -->
+            <div class="field field-custom">
+                <label class="label" style="color:var(--dark-blue);">
+                    <i class="fas fa-calendar-week" style="color:var(--primary-red);margin-right:6px;"></i>
+                    ¿Cuántos días por semana puedes ir al gimnasio?
+                </label>
+                <div class="control">
+                    <div class="select is-fullwidth">
+                        <select id="dias_semana">
+                            <option value="2">2 días</option>
+                            <option value="3" selected>3 días</option>
+                            <option value="4">4 días</option>
+                            <option value="5">5 días</option>
+                            <option value="6">6 días</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Limitaciones físicas (selección múltiple) -->
+            <div class="field field-custom">
+                <label class="label" style="color:var(--dark-blue);">
+                    <i class="fas fa-heartbeat" style="color:var(--primary-red);margin-right:6px;"></i>
+                    Limitaciones físicas <span style="font-weight:400;color:var(--blue-gray);">(selecciona todas las que apliquen)</span>
+                </label>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#f5f7fa;border-radius:10px;padding:14px;border:2px solid var(--light-gray);">
+                    <label class="checkbox" style="color:var(--dark-blue);display:flex;align-items:center;gap:6px;">
+                        <input type="checkbox" name="limitacion" value="rodilla"> Rodilla
+                    </label>
+                    <label class="checkbox" style="color:var(--dark-blue);display:flex;align-items:center;gap:6px;">
+                        <input type="checkbox" name="limitacion" value="espalda"> Espalda
+                    </label>
+                    <label class="checkbox" style="color:var(--dark-blue);display:flex;align-items:center;gap:6px;">
+                        <input type="checkbox" name="limitacion" value="hombro"> Hombro
+                    </label>
+                    <label class="checkbox" style="color:var(--dark-blue);display:flex;align-items:center;gap:6px;">
+                        <input type="checkbox" name="limitacion" value="cadera"> Cadera
+                    </label>
+                    <label class="checkbox" style="color:var(--dark-blue);display:flex;align-items:center;gap:6px;">
+                        <input type="checkbox" name="limitacion" value="muneca"> Muñeca
+                    </label>
+                    <label class="checkbox" style="color:var(--dark-blue);display:flex;align-items:center;gap:6px;">
+                        <input type="checkbox" name="limitacion" value="tobillo"> Tobillo
+                    </label>
+                    <label class="checkbox" style="color:var(--dark-blue);display:flex;align-items:center;gap:6px;">
+                        <input type="checkbox" name="limitacion" value="cuello"> Cuello
+                    </label>
+                    <label class="checkbox" style="color:var(--dark-blue);display:flex;align-items:center;gap:6px;">
+                        <input type="checkbox" name="limitacion" value="ninguna" id="chk-ninguna"> Ninguna
+                    </label>
+                </div>
+            </div>
+
+            <!-- Términos -->
+            <div class="field">
+                <div class="control">
+                    <label class="checkbox" style="color:var(--blue-gray);">
+                        <input type="checkbox" id="terms" required>
+                        Acepto los <a href="#" style="color:var(--primary-red);">términos y condiciones</a>
+                    </label>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <button class="button btn-register" type="submit">
+                        <span class="icon"><i class="fas fa-user-plus"></i></span>
+                        <span>Crear Cuenta</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div class="auth-links">
+            <p style="color:var(--blue-gray);">¿Ya tienes cuenta? <a href="/login">Inicia sesión aquí</a></p>
         </div>
     </div>
+</div>
 
-    <script src="../../static/js/register.js"></script>
+<script src="/static/js/register.js"></script>
 </body>
 </html>

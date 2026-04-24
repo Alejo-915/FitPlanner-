@@ -4,119 +4,134 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Ejercicios - FitPlanner</title>
-    <!-- DataTables CDN -->
     <link href="https://cdn.datatables.net/v/dt/dt-2.3.5/b-3.2.5/b-colvis-3.2.5/b-html5-3.2.5/b-print-3.2.5/r-3.0.7/datatables.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="/static/css/stock-styles.css">
-    <!-- FontAwesome para íconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-    <section id="stock-container-section">
-        <article class="stock-container-article">
-            <h2 id="h2">GESTIÓN DE EJERCICIOS</h2>
-            <br>
-            <!-- Botón para abrir modal de creación -->
-            <button id="btn-crear-ejercicio" class="button is-primary mb-4">
-                <span class="icon"><i class="fas fa-plus"></i></span>
-                <span>Agregar Nuevo Ejercicio</span>
-            </button>
-            <br><br>
-            <table id="tabla-ejercicios" class="display table table-striped" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Grupo Muscular</th>
-                        <th>Equipo</th>
-                        <th>Descripción</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+<section id="stock-container-section">
+    <article class="stock-container-article">
+        <h2 id="h2">GESTIÓN DE EJERCICIOS</h2>
+        <br>
+        <button id="btn-crear-ejercicio" class="button is-primary mb-4">
+            <span class="icon"><i class="fas fa-plus"></i></span>
+            <span>Agregar Nuevo Ejercicio</span>
+        </button>
+        <br><br>
+        <table id="tabla-ejercicios" class="display table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Grupo Muscular</th>
+                    <th>Equipo</th>
+                    <th>Dificultad</th>
+                    <th>Restricciones</th>
+                    <th>Video</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </article>
+</section>
+
+<!-- Modal DETALLES -->
+<section id="modal-detalles-ejercicio" class="modal">
+    <form id="modal-ejercicio-content">
+        <article class="modal-article">
+            <div class="modal-header">
+                <button id="close-modal-btn-ejercicio" class="btn-modal">❌</button>
+                <h4 id="modal-ejercicio-title"></h4>
+            </div>
+            <picture class="modal-img-container">
+                <img src="https://cdn-icons-png.flaticon.com/512/2548/2548533.png" alt="ejercicio">
+            </picture>
         </article>
-    </section>
+        <article class="modal-article">
+            <div id="detalles-container-ejercicio"><h2>Detalles</h2></div>
+        </article>
+    </form>
+</section>
 
-    <!-- Modal DETALLES ejercicio -->
-    <section id="modal-detalles-ejercicio" class="modal">
-        <form id="modal-ejercicio-content">
-            <article class="modal-article">
-                <div class="modal-header">
-                    <button id="close-modal-btn-ejercicio" class="btn-modal">❌</button>
-                    <h4 id="modal-ejercicio-title"></h4>
+<!-- Modal CREAR -->
+<section id="modal-crear-ejercicio" class="modal">
+    <form id="modal-crear-content">
+        <article class="modal-article">
+            <div class="modal-header">
+                <button id="close-modal-crear-btn" class="btn-modal">❌</button>
+                <h4>Crear Nuevo Ejercicio</h4>
+            </div>
+            <picture class="modal-img-container">
+                <img src="https://cdn-icons-png.flaticon.com/512/2548/2548533.png" alt="nuevo ejercicio">
+            </picture>
+        </article>
+        <article class="modal-article">
+            <div id="crear-container-ejercicio">
+                <h2>Información del Ejercicio</h2>
+
+                <label class="label_field">Nombre:
+                    <input type="text" class="input_field" id="nuevo-nombre" placeholder="Ej: Press de banca" required>
+                </label>
+
+                <label class="label_field">Grupo Muscular:
+                    <select class="input_field" id="nuevo-grupo-muscular" required>
+                        <option value="">Selecciona un grupo</option>
+                        <option value="Pecho">Pecho</option>
+                        <option value="Espalda">Espalda</option>
+                        <option value="Piernas">Piernas</option>
+                        <option value="Hombros">Hombros</option>
+                        <option value="Brazos">Brazos</option>
+                        <option value="Core">Core</option>
+                        <option value="Full body">Full body</option>
+                        <option value="Cardiovascular">Cardiovascular</option>
+                    </select>
+                </label>
+
+                <label class="label_field">Equipo Necesario:
+                    <input type="text" class="input_field" id="nuevo-equipo" placeholder="Ej: Barra, Mancuernas" required>
+                </label>
+
+                <!-- NUEVO: Dificultad -->
+                <label class="label_field">Dificultad:
+                    <select class="input_field" id="nuevo-dificultad" required>
+                        <option value="fácil">Fácil</option>
+                        <option value="moderado" selected>Moderado</option>
+                        <option value="difícil">Difícil</option>
+                    </select>
+                </label>
+
+                <!-- NUEVO: Restricciones físicas -->
+                <label class="label_field">Restricciones físicas (usuarios que NO deben hacer este ejercicio):</label>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#f0f4f8;padding:10px;border-radius:8px;margin-bottom:12px;">
+                    <label><input type="checkbox" class="chk-restriccion" value="rodilla"> Rodilla</label>
+                    <label><input type="checkbox" class="chk-restriccion" value="espalda"> Espalda</label>
+                    <label><input type="checkbox" class="chk-restriccion" value="hombro"> Hombro</label>
+                    <label><input type="checkbox" class="chk-restriccion" value="cadera"> Cadera</label>
+                    <label><input type="checkbox" class="chk-restriccion" value="muneca"> Muñeca</label>
+                    <label><input type="checkbox" class="chk-restriccion" value="tobillo"> Tobillo</label>
+                    <label><input type="checkbox" class="chk-restriccion" value="cuello"> Cuello</label>
                 </div>
-                <picture class="modal-img-container">
-                    <img src="https://cdn-icons-png.flaticon.com/512/2548/2548533.png" alt="imagen ejercicio">
-                </picture>
-            </article>
-            <article class="modal-article">
-                <div id="detalles-container-ejercicio">
-                    <h2>Detalles</h2>
-                    <!-- Content loaded by JS -->
-                </div>
-            </article>
-        </form>
-    </section>
 
-    <!-- Modal CREAR ejercicio -->
-    <section id="modal-crear-ejercicio" class="modal">
-        <form id="modal-crear-content">
-            <article class="modal-article">
-                <div class="modal-header">
-                    <button id="close-modal-crear-btn" class="btn-modal">❌</button>
-                    <h4>Crear Nuevo Ejercicio</h4>
-                </div>
-                <picture class="modal-img-container">
-                    <img src="https://cdn-icons-png.flaticon.com/512/2548/2548533.png" alt="nuevo ejercicio">
-                </picture>
-            </article>
-            <article class="modal-article">
-                <div id="crear-container-ejercicio">
-                    <h2>Información del Ejercicio</h2>
+                <label class="label_field">Descripción:
+                    <textarea class="input_field" id="nuevo-descripcion" rows="3" placeholder="Describe el ejercicio" required></textarea>
+                </label>
 
-                    <label class="label_field">Nombre del Ejercicio:
-                        <input type="text" class="input_field" id="nuevo-nombre" placeholder="Ej: Press de banca" required>
-                    </label>
+                <label class="label_field">URL del Video (YouTube):
+                    <input type="url" class="input_field" id="nuevo-video-url" placeholder="https://www.youtube.com/watch?v=...">
+                    <small style="color:#666;">Opcional – el video se mostrará embebido en la app</small>
+                </label>
 
-                    <label class="label_field">Grupo Muscular:
-                        <select class="input_field" id="nuevo-grupo-muscular" required>
-                            <option value="">Selecciona un grupo</option>
-                            <option value="Pecho">Pecho</option>
-                            <option value="Espalda">Espalda</option>
-                            <option value="Piernas">Piernas</option>
-                            <option value="Hombros">Hombros</option>
-                            <option value="Brazos">Brazos</option>
-                            <option value="Core">Core</option>
-                            <option value="Full body">Full body</option>
-                            <option value="Cardiovascular">Cardiovascular</option>
-                        </select>
-                    </label>
+                <button type="submit" class="input_submit">Crear Ejercicio</button>
+            </div>
+        </article>
+    </form>
+</section>
 
-                    <label class="label_field">Equipo Necesario:
-                        <input type="text" class="input_field" id="nuevo-equipo" placeholder="Ej: Barra, Mancuernas, Peso corporal" required>
-                    </label>
-
-                    <label class="label_field">Descripción:
-                        <textarea class="input_field" id="nuevo-descripcion" rows="4" placeholder="Describe el ejercicio y su técnica" required></textarea>
-                    </label>
-
-                    <label class="label_field">URL del Video (YouTube):
-                        <input type="url" class="input_field" id="nuevo-video-url" placeholder="https://www.youtube.com/watch?v=...">
-                        <small style="color: #666;">Opcional: Link de YouTube para tutorial del ejercicio</small>
-                    </label>
-
-                    <button type="submit" class="input_submit">Crear Ejercicio</button>
-                </div>
-            </article>
-        </form>
-    </section>
-
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/v/dt/dt-2.3.5/b-3.2.5/b-colvis-3.2.5/b-html5-3.2.5/b-print-3.2.5/r-3.0.7/datatables.min.js"></script>
-    <script src="/static/js/ejercicios.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/v/dt/dt-2.3.5/b-3.2.5/b-colvis-3.2.5/b-html5-3.2.5/b-print-3.2.5/r-3.0.7/datatables.min.js"></script>
+<script src="/static/js/ejercicios.js"></script>
 </body>
 </html>

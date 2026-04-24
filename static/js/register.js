@@ -1,8 +1,8 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Efectos de inputs y validaciones en tiempo real
+document.addEventListener('DOMContentLoaded', function () {
     initInputEffects();
     initPasswordStrength();
     initPasswordMatch();
+    initNingunaCheckbox();
 
     const registerForm = document.getElementById('registerForm');
     if (registerForm) {
@@ -12,152 +12,138 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initInputEffects() {
     document.querySelectorAll('.input-custom').forEach(input => {
-        input.addEventListener('focus', function() {
+        input.addEventListener('focus', function () {
             this.parentElement.parentElement.classList.add('is-focused');
         });
-        
-        input.addEventListener('blur', function() {
+        input.addEventListener('blur', function () {
             this.parentElement.parentElement.classList.remove('is-focused');
         });
     });
 }
 
 function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function initPasswordStrength() {
     const passwordInput = document.getElementById('password');
     if (!passwordInput) return;
-
-    passwordInput.addEventListener('input', function() {
-        const password = this.value;
-        const strengthDiv = document.getElementById('passwordStrength');
-        
-        if (!strengthDiv) return;
-        
-        if (password.length === 0) {
-            strengthDiv.textContent = '';
-            return;
-        }
-        
-        let strength = 0;
-        if (password.length >= 6) strength++;
-        if (password.match(/[a-z]/)) strength++;
-        if (password.match(/[A-Z]/)) strength++;
-        if (password.match(/[0-9]/)) strength++;
-        if (password.match(/[^a-zA-Z0-9]/)) strength++;
-        
-        if (strength < 3) {
-            strengthDiv.textContent = 'Contraseña débil';
-            strengthDiv.className = 'password-strength strength-weak';
-        } else if (strength < 4) {
-            strengthDiv.textContent = 'Contraseña media';
-            strengthDiv.className = 'password-strength strength-medium';
-        } else {
-            strengthDiv.textContent = 'Contraseña fuerte';
-            strengthDiv.className = 'password-strength strength-strong';
-        }
+    passwordInput.addEventListener('input', function () {
+        const p = this.value;
+        const div = document.getElementById('passwordStrength');
+        if (!div) return;
+        if (!p) { div.textContent = ''; return; }
+        let s = 0;
+        if (p.length >= 6) s++;
+        if (p.match(/[a-z]/)) s++;
+        if (p.match(/[A-Z]/)) s++;
+        if (p.match(/[0-9]/)) s++;
+        if (p.match(/[^a-zA-Z0-9]/)) s++;
+        if (s < 3) { div.textContent = 'Contraseña débil'; div.className = 'password-strength strength-weak'; }
+        else if (s < 4) { div.textContent = 'Contraseña media'; div.className = 'password-strength strength-medium'; }
+        else { div.textContent = 'Contraseña fuerte'; div.className = 'password-strength strength-strong'; }
     });
 }
 
 function initPasswordMatch() {
-    const confirmPasswordInput = document.getElementById('confirmPassword');
-    if (!confirmPasswordInput) return;
+    const confirm = document.getElementById('confirmPassword');
+    if (!confirm) return;
+    confirm.addEventListener('input', function () {
+        const pw = document.getElementById('password').value;
+        this.style.borderColor = (this.value && pw !== this.value) ? '#ff3860' : '#E2E2E2';
+    });
+}
 
-    confirmPasswordInput.addEventListener('input', function() {
-        const password = document.getElementById('password').value;
-        const confirmPassword = this.value;
-        
-        if (confirmPassword && password !== confirmPassword) {
-            this.style.borderColor = '#ff3860';
+// Si marca "Ninguna" desmarcar las demás y viceversa
+function initNingunaCheckbox() {
+    const chkNinguna = document.getElementById('chk-ninguna');
+    const otrasChk = document.querySelectorAll('input[name="limitacion"]:not(#chk-ninguna)');
+
+    if (!chkNinguna) return;
+
+    chkNinguna.addEventListener('change', () => {
+        if (chkNinguna.checked) {
+            otrasChk.forEach(c => { c.checked = false; c.disabled = true; });
         } else {
-            this.style.borderColor = '#E2E2E2';
+            otrasChk.forEach(c => { c.disabled = false; });
         }
+    });
+
+    otrasChk.forEach(c => {
+        c.addEventListener('change', () => {
+            if (c.checked) {
+                chkNinguna.checked = false;
+                chkNinguna.disabled = false;
+            }
+        });
     });
 }
 
 async function handleRegister(e) {
     e.preventDefault();
-    
-    const firstName = document.getElementById('firstName').value;
-    const lastName = document.getElementById('lastName').value;
-    const email = document.getElementById('email').value;
+
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName = document.getElementById('lastName').value.trim();
+    const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
     const age = document.getElementById('age').value;
     const goal = document.getElementById('goal').value;
+    const peso = document.getElementById('peso').value;
+    const altura = document.getElementById('altura').value;
+    const meses = parseInt(document.getElementById('meses_sin_ejercicio').value);
+    const dias = parseInt(document.getElementById('dias_semana').value);
     const terms = document.getElementById('terms').checked;
-    const fullname = `${firstName} ${lastName}`;
-    
-    // Validaciones
-    if (!fullname || !email || !password || !confirmPassword || !age || !goal) {
-        alert('Por favor, completa todos los campos');
+
+    // Recoger limitaciones seleccionadas
+    const limitaciones = Array.from(
+        document.querySelectorAll('input[name="limitacion"]:checked')
+    )
+        .map(c => c.value)
+        .filter(v => v !== 'ninguna');
+
+    if (!firstName || !lastName || !email || !password || !confirmPassword || !age || !goal) {
+        alert('Por favor, completa todos los campos obligatorios');
         return;
     }
-    
-    if (!isValidEmail(email)) {
-        alert('Por favor, ingresa un email válido');
-        return;
-    }
-    
-    if (password.length < 6) {
-        alert('La contraseña debe tener al menos 6 caracteres');
-        return;
-    }
-    
-    if (password !== confirmPassword) {
-        alert('Las contraseñas no coinciden');
-        return;
-    }
-    
-    if (!terms) {
-        alert('Debes aceptar los términos y condiciones');
-        return;
-    }
-    
-    const registerData = {
-        fullname,
+    if (!isValidEmail(email)) { alert('Email inválido'); return; }
+    if (password.length < 6) { alert('La contraseña debe tener al menos 6 caracteres'); return; }
+    if (password !== confirmPassword) { alert('Las contraseñas no coinciden'); return; }
+    if (!terms) { alert('Debes aceptar los términos y condiciones'); return; }
+
+    const payload = {
+        fullname: `${firstName} ${lastName}`,
         email,
         password,
         age: parseInt(age),
         goal,
-        termsAccepted: terms
+        peso: peso ? parseFloat(peso) : null,
+        altura: altura ? parseFloat(altura) : null,
+        limitaciones,
+        meses_sin_ejercicio: meses,
+        dias_semana: dias,
     };
 
-    console.log('Datos de registro capturados:', registerData);
-
-    // Mostrar estado de carga
-    const button = document.querySelector('.btn-register');
-    const originalContent = button.innerHTML;
-    button.innerHTML = '<span class="icon"><i class="fas fa-spinner fa-spin"></i></span><span>Creando cuenta...</span>';
-    button.disabled = true;
+    const btn = document.querySelector('.btn-register');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<span class="icon"><i class="fas fa-spinner fa-spin"></i></span><span>Creando cuenta...</span>';
+    btn.disabled = true;
 
     try {
-        // Llamada real a la API
-        const response = await fetch('/auth/register', {
+        const res = await fetch('/auth/register', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(registerData)
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
         });
-
-        // Simulación de delay
-        // await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        if (response.ok) {
+        if (res.ok) {
             window.location.href = '/home/user';
         } else {
-            const errorData = await response.json();
-            throw new Error(errorData.detail || 'Error en registro');
+            const err = await res.json();
+            throw new Error(err.detail || 'Error en registro');
         }
-        
     } catch (error) {
-        console.error('Error durante el registro:', error);
-        alert('Error al crear la cuenta. Por favor intente nuevamente.');
-        button.innerHTML = originalContent;
-        button.disabled = false;
+        alert('Error: ' + error.message);
+        btn.innerHTML = orig;
+        btn.disabled = false;
     }
 }
