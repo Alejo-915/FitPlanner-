@@ -54,13 +54,10 @@ function initPasswordMatch() {
     });
 }
 
-// Si marca "Ninguna" desmarcar las demás y viceversa
 function initNingunaCheckbox() {
     const chkNinguna = document.getElementById('chk-ninguna');
     const otrasChk = document.querySelectorAll('input[name="limitacion"]:not(#chk-ninguna)');
-
     if (!chkNinguna) return;
-
     chkNinguna.addEventListener('change', () => {
         if (chkNinguna.checked) {
             otrasChk.forEach(c => { c.checked = false; c.disabled = true; });
@@ -68,81 +65,94 @@ function initNingunaCheckbox() {
             otrasChk.forEach(c => { c.disabled = false; });
         }
     });
-
     otrasChk.forEach(c => {
         c.addEventListener('change', () => {
-            if (c.checked) {
-                chkNinguna.checked = false;
-                chkNinguna.disabled = false;
-            }
+            if (c.checked) { chkNinguna.checked = false; chkNinguna.disabled = false; }
         });
     });
+}
+
+function showError(msg) {
+    let box = document.getElementById('register-error');
+    if (!box) {
+        box = document.createElement('div');
+        box.id = 'register-error';
+        box.style.cssText = `
+            background:#fff0f0; border:1px solid #E30005; border-radius:8px;
+            color:#c20004; padding:10px 14px; margin-bottom:16px; font-size:14px;
+            display:flex; align-items:center; gap:8px;
+        `;
+        const form = document.getElementById('registerForm');
+        form.insertBefore(box, form.firstChild);
+    }
+    box.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${msg}`;
+    box.style.display = 'flex';
 }
 
 async function handleRegister(e) {
     e.preventDefault();
 
-    const firstName = document.getElementById('firstName').value.trim();
-    const lastName = document.getElementById('lastName').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    const age = document.getElementById('age').value;
-    const goal = document.getElementById('goal').value;
-    const peso = document.getElementById('peso').value;
-    const altura = document.getElementById('altura').value;
-    const meses = parseInt(document.getElementById('meses_sin_ejercicio').value);
-    const dias = parseInt(document.getElementById('dias_semana').value);
-    const terms = document.getElementById('terms').checked;
+    const firstName        = document.getElementById('firstName').value.trim();
+    const lastName         = document.getElementById('lastName').value.trim();
+    const email            = document.getElementById('email').value.trim();
+    const password         = document.getElementById('password').value;
+    const confirmPassword  = document.getElementById('confirmPassword').value;
+    const age              = document.getElementById('age').value;
+    const goal             = document.getElementById('goal').value;
+    const peso             = document.getElementById('peso').value;
+    const altura           = document.getElementById('altura').value;
+    const meses            = parseInt(document.getElementById('meses_sin_ejercicio').value);
+    const dias             = parseInt(document.getElementById('dias_semana').value);
+    const terms            = document.getElementById('terms').checked;
 
-    // Recoger limitaciones seleccionadas
     const limitaciones = Array.from(
         document.querySelectorAll('input[name="limitacion"]:checked')
-    )
-        .map(c => c.value)
-        .filter(v => v !== 'ninguna');
+    ).map(c => c.value).filter(v => v !== 'ninguna');
 
     if (!firstName || !lastName || !email || !password || !confirmPassword || !age || !goal) {
-        alert('Por favor, completa todos los campos obligatorios');
-        return;
+        showError('Por favor, completa todos los campos obligatorios'); return;
     }
-    if (!isValidEmail(email)) { alert('Email inválido'); return; }
-    if (password.length < 6) { alert('La contraseña debe tener al menos 6 caracteres'); return; }
-    if (password !== confirmPassword) { alert('Las contraseñas no coinciden'); return; }
-    if (!terms) { alert('Debes aceptar los términos y condiciones'); return; }
+    if (!isValidEmail(email))  { showError('Email inválido'); return; }
+    if (password.length < 6)   { showError('La contraseña debe tener al menos 6 caracteres'); return; }
+    if (password !== confirmPassword) { showError('Las contraseñas no coinciden'); return; }
+    if (!terms)                { showError('Debes aceptar los términos y condiciones'); return; }
 
     const payload = {
         fullname: `${firstName} ${lastName}`,
-        email,
-        password,
+        email, password,
         age: parseInt(age),
         goal,
-        peso: peso ? parseFloat(peso) : null,
+        peso:   peso   ? parseFloat(peso)   : null,
         altura: altura ? parseFloat(altura) : null,
         limitaciones,
         meses_sin_ejercicio: meses,
         dias_semana: dias,
     };
 
-    const btn = document.querySelector('.btn-register');
+    const btn  = document.querySelector('.btn-register');
     const orig = btn.innerHTML;
     btn.innerHTML = '<span class="icon"><i class="fas fa-spinner fa-spin"></i></span><span>Creando cuenta...</span>';
     btn.disabled = true;
 
     try {
-        const res = await fetch('/auth/register', {
+        const res  = await fetch('/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
         });
-        if (res.ok) {
-            window.location.href = '/home/user';
-        } else {
-            const err = await res.json();
-            throw new Error(err.detail || 'Error en registro');
-        }
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.detail || 'Error en registro');
+
+        // ── Guardar sesión ───────────────────────────────────────
+        localStorage.setItem('user_id', data.user_id);
+        localStorage.setItem('nombre',  data.nombre);
+        localStorage.setItem('nivel_condicion', data.nivel_condicion || '');
+
+        window.location.href = '/home/user';
+
     } catch (error) {
-        alert('Error: ' + error.message);
+        showError(error.message);
         btn.innerHTML = orig;
         btn.disabled = false;
     }

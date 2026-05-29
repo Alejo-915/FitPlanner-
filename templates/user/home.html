@@ -9,18 +9,54 @@
     <link rel="stylesheet" href="/static/css/main.css">
     <link rel="stylesheet" href="/static/css/dashboard.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .nav-btn {
+            background: rgba(255,255,255,0.15); border: none; color: white;
+            padding: 6px 12px; border-radius: 6px; cursor: pointer;
+            font-size: 13px; display: inline-flex; align-items: center;
+            gap: 6px; text-decoration: none; transition: background 0.2s;
+        }
+        .nav-btn:hover { background: rgba(255,255,255,0.28); color: white; }
+        .no-data-msg {
+            text-align: center; padding: 40px 20px; color: #999;
+        }
+        .no-data-msg i { font-size: 2.5rem; opacity: .3; display: block; margin-bottom: 10px; }
+        .progreso-form {
+            background: #f8fafc; border-radius: 10px; padding: 16px;
+            margin-top: 12px; border: 1px dashed #ddd;
+        }
+        .progreso-form input {
+            padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px;
+            font-size: 13px; width: 100%; box-sizing: border-box; margin-bottom: 8px;
+        }
+        .btn-registrar-progreso {
+            background: #273348; color: white; border: none; padding: 8px 16px;
+            border-radius: 6px; cursor: pointer; font-size: 13px; width: 100%;
+        }
+        .btn-registrar-progreso:hover { background: #1a2230; }
+        .toast-notif {
+            position: fixed; bottom: 24px; right: 24px;
+            background: #273348; color: white; padding: 12px 20px;
+            border-radius: 10px; font-size: 14px; z-index: 9999;
+            display: none; align-items: center; gap: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+        .toast-notif.show { display: flex; }
+    </style>
 </head>
 <body>
 
 <!-- Navbar -->
 <nav class="dashboard-nav">
     <div class="nav-brand"><i class="fas fa-dumbbell"></i> FITPLANNER</div>
-    <div class="nav-user">
+    <div class="nav-user" style="display:flex;align-items:center;gap:10px;">
         <span id="nav-nombre">Hola, Usuario</span>
-        <div class="image is-32x32">
-            <img class="is-rounded" src="https://ui-avatars.com/api/?name=User&background=E30005&color=fff" alt="User" id="nav-avatar">
-        </div>
-        <button onclick="cerrarSesion()" class="button is-small is-light ml-3">
+        <img class="is-rounded" src="https://ui-avatars.com/api/?name=U&background=E30005&color=fff"
+             alt="User" id="nav-avatar" style="width:32px;height:32px;border-radius:50%;">
+        <a href="/user/config" class="nav-btn" title="Configuración">
+            <i class="fas fa-cog"></i> Config
+        </a>
+        <button onclick="cerrarSesion()" class="nav-btn" title="Cerrar sesión">
             <i class="fas fa-sign-out-alt"></i>
         </button>
     </div>
@@ -44,7 +80,7 @@
                         <div class="stat-item"><span>IMC</span><span class="stat-value" id="perfil-imc">—</span></div>
                         <div class="stat-item"><span>Nivel</span><span class="stat-value" id="perfil-nivel" style="color:var(--accent-red);">—</span></div>
                         <div class="stat-item"><span>Objetivo</span><span class="stat-value" id="perfil-objetivo">—</span></div>
-                        <div class="stat-item"><span>Limitaciones</span><span class="stat-value" id="perfil-limitaciones" style="color:#e74c3c;">—</span></div>
+                        <div class="stat-item"><span>Limitaciones</span><span class="stat-value" id="perfil-limitaciones" style="color:#e74c3c;font-size:12px;">—</span></div>
                     </div>
                 </div>
                 <button class="calendar-btn" id="btn-solicitar-nivel" onclick="solicitarSubidaNivel()">
@@ -53,18 +89,25 @@
             </div>
         </div>
 
-        <!-- Asistencia (gráfica de barras) -->
+        <!-- Asistencia -->
         <div class="column is-4-desktop is-6-tablet">
             <div class="bento-card progress-card">
                 <h3 class="bento-title">Asistencia Mensual <i class="fas fa-chart-bar" style="color:var(--accent-red);"></i></h3>
-                <div style="position:relative;height:220px;">
+                <div style="position:relative;height:200px;">
                     <canvas id="chartAsistencia"></canvas>
+                    <div id="no-asistencia" class="no-data-msg" style="display:none;">
+                        <i class="fas fa-calendar-times"></i>
+                        Sin registros de asistencia aún
+                    </div>
                 </div>
-                <div style="display:flex;gap:16px;margin-top:10px;font-size:13px;">
-                    <span><b id="stat-total">0</b> sesiones totales</span>
-                    <span><b id="stat-racha">0</b> días de racha</span>
-                    <span><b id="stat-promedio">0</b>/semana</span>
+                <div style="display:flex;gap:16px;margin-top:10px;font-size:13px;flex-wrap:wrap;">
+                    <span>🏋️ <b id="stat-total">0</b> sesiones</span>
+                    <span>🔥 <b id="stat-racha">0</b> días seguidos</span>
+                    <span>📅 <b id="stat-promedio">0</b>/semana</span>
                 </div>
+                <button onclick="registrarAsistencia()" style="margin-top:10px;background:#E30005;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;width:100%;">
+                    <i class="fas fa-plus"></i> Registrar sesión hoy
+                </button>
             </div>
         </div>
 
@@ -76,12 +119,15 @@
                     <p style="color:#999;">Cargando recomendación...</p>
                 </div>
                 <div id="fase-badge" style="margin-top:8px;"></div>
+                <button onclick="generarRecomendacion()" style="margin-top:10px;background:#273348;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:12px;width:100%;">
+                    <i class="fas fa-sync-alt"></i> Actualizar recomendación
+                </button>
             </div>
         </div>
 
     </div>
 
-    <!-- Fila 2: Rutina de hoy + video -->
+    <!-- Fila 2: Rutina + video -->
     <div class="columns">
         <div class="column is-8">
             <div class="bento-card routine-card">
@@ -93,7 +139,10 @@
                     </button>
                 </h3>
                 <div class="table-container" id="rutina-table-container">
-                    <p style="color:#999;text-align:center;padding:20px;">No hay rutina activa. Haz clic en "Generar automáticamente".</p>
+                    <div class="no-data-msg">
+                        <i class="fas fa-clipboard-list"></i>
+                        No hay rutina activa. Haz clic en "Generar automáticamente".
+                    </div>
                 </div>
             </div>
         </div>
@@ -105,20 +154,42 @@
                 <div id="video-container">
                     <div style="background:#f0f0f0;border-radius:10px;height:200px;display:flex;align-items:center;justify-content:center;color:#999;flex-direction:column;gap:8px;">
                         <i class="fab fa-youtube" style="font-size:3rem;opacity:.3;"></i>
-                        <p style="font-size:12px;">Selecciona un ejercicio para ver su tutorial</p>
+                        <p style="font-size:12px;text-align:center;">Selecciona un ejercicio para ver su tutorial</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Fila 3: Gráfica de progreso -->
+    <!-- Fila 3: Progreso -->
     <div class="columns">
-        <div class="column is-12">
+        <div class="column is-8">
             <div class="bento-card">
                 <h3 class="bento-title">Progreso de Peso <i class="fas fa-weight" style="color:var(--accent-blue);"></i></h3>
                 <div style="position:relative;height:200px;">
                     <canvas id="chartProgreso"></canvas>
+                    <div id="no-progreso" class="no-data-msg" style="display:none;">
+                        <i class="fas fa-chart-line"></i>
+                        Sin registros de progreso aún
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registrar progreso -->
+        <div class="column is-4">
+            <div class="bento-card" style="border-left:4px solid #273348;">
+                <h3 class="bento-title">Registrar Progreso <i class="fas fa-edit" style="color:#273348;"></i></h3>
+                <div class="progreso-form">
+                    <label style="font-size:12px;font-weight:600;color:#273348;">Peso actual (kg)</label>
+                    <input type="number" step="0.1" id="prog-peso" placeholder="70.5">
+                    <label style="font-size:12px;font-weight:600;color:#273348;">Repeticiones completadas</label>
+                    <input type="number" id="prog-reps" placeholder="20">
+                    <label style="font-size:12px;font-weight:600;color:#273348;">Duración sesión (min)</label>
+                    <input type="number" id="prog-duracion" placeholder="45">
+                    <button class="btn-registrar-progreso" onclick="registrarProgreso()">
+                        <i class="fas fa-save"></i> Registrar
+                    </button>
                 </div>
             </div>
         </div>
@@ -126,51 +197,71 @@
 
 </div>
 
-<script>
-// ─── Estado global ───────────────────────────────────────
-const userId = localStorage.getItem('user_id') || 1;
+<!-- Toast -->
+<div id="toast-notif" class="toast-notif"></div>
 
-// ─── Cargar perfil ───────────────────────────────────────
+<script>
+// ── Verificar sesión ─────────────────────────────────────
+const userId = localStorage.getItem('user_id');
+if (!userId) {
+    window.location.href = '/login';
+}
+
+// ── Toast ────────────────────────────────────────────────
+function showToast(msg, duration = 3500) {
+    const t = document.getElementById('toast-notif');
+    t.innerHTML = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// ── Cargar perfil ────────────────────────────────────────
 async function cargarPerfil() {
     try {
         const res = await fetch(`/usuarios/${userId}`);
-        if (!res.ok) return;
+        if (!res.ok) { window.location.href = '/login'; return; }
         const u = await res.json();
         document.getElementById('nav-nombre').textContent = 'Hola, ' + u.nombre.split(' ')[0];
-        document.getElementById('nav-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(u.nombre)}&background=E30005&color=fff`;
-        document.getElementById('perfil-nombre').textContent = u.nombre;
-        document.getElementById('perfil-edad').textContent = u.edad + ' años';
-        document.getElementById('perfil-peso').textContent = (u.peso || '—') + ' kg';
-        document.getElementById('perfil-altura').textContent = (u.altura || '—') + ' cm';
-        document.getElementById('perfil-nivel').textContent = u.nivel_condicion || '—';
-        document.getElementById('perfil-objetivo').textContent = u.objetivo || '—';
-        document.getElementById('perfil-limitaciones').textContent = u.limitaciones ? u.limitaciones.replace(/,/g, ', ') : 'Ninguna';
+        document.getElementById('nav-avatar').src =
+            `https://ui-avatars.com/api/?name=${encodeURIComponent(u.nombre)}&background=E30005&color=fff`;
+        document.getElementById('perfil-nombre').textContent   = u.nombre;
+        document.getElementById('perfil-edad').textContent     = (u.edad     || '—') + (u.edad ? ' años' : '');
+        document.getElementById('perfil-peso').textContent     = (u.peso     || '—') + (u.peso ? ' kg' : '');
+        document.getElementById('perfil-altura').textContent   = (u.altura   || '—') + (u.altura ? ' cm' : '');
+        document.getElementById('perfil-nivel').textContent    = u.nivel_condicion || '—';
+        document.getElementById('perfil-objetivo').textContent = u.objetivo   || '—';
+        document.getElementById('perfil-limitaciones').textContent =
+            u.limitaciones ? u.limitaciones.replace(/,/g, ', ') : 'Ninguna';
         if (u.peso && u.altura) {
-            const imc = u.peso / ((u.altura / 100) ** 2);
-            document.getElementById('perfil-imc').textContent = imc.toFixed(1);
+            const imc = (u.peso / ((u.altura / 100) ** 2)).toFixed(1);
+            document.getElementById('perfil-imc').textContent = imc;
         }
     } catch (e) { console.error('perfil:', e); }
 }
 
-// ─── Cargar recomendación ────────────────────────────────
+// ── Cargar recomendación ─────────────────────────────────
 async function cargarRecomendacion() {
     try {
         const res = await fetch(`/recomendaciones/${userId}`);
         if (!res.ok) {
             document.getElementById('recomendacion-box').innerHTML =
-                '<p style="color:#999;">Sin recomendación. Completa tu perfil con peso y altura.</p>';
+                '<p style="color:#999;font-size:12px;">Sin recomendación. Completa tu perfil con peso y altura, luego haz clic en "Actualizar recomendación".</p>';
             return;
         }
         const r = await res.json();
         const desc = r.descripcion.replace(/\n/g, '<br>');
-        document.getElementById('recomendacion-box').innerHTML = `<p>IMC: <b>${r.imc}</b></p><p>${desc}</p>`;
+        document.getElementById('recomendacion-box').innerHTML =
+            `<p><b>IMC: ${r.imc}</b></p><p>${desc}</p>`;
         if (r.fase_recomendada) {
             const badges = {
-                primero_perder_peso: ['🔴 Primero: perder peso', '#fee'],
-                ganar_musculo: ['💪 Directo: ganar músculo', '#e8f8e8'],
-                primero_ganar_peso: ['⬆️ Primero: ganar peso', '#fff8e1'],
-                no_apto_perder_peso: ['⚠️ No apto para perder peso', '#fee'],
-                mantener_forma: ['✅ Mantener forma', '#e8f8e8'],
+                primero_perder_peso:             ['🔴 Primero: perder peso',        '#fee'],
+                ganar_musculo:                   ['💪 Directo: ganar músculo',      '#e8f8e8'],
+                primero_ganar_peso:              ['⬆️ Primero: ganar peso',          '#fff8e1'],
+                no_apto_perder_peso:             ['⚠️ No apto para perder peso',     '#fee'],
+                mantener_forma:                  ['✅ Mantener forma',               '#e8f8e8'],
+                primero_perder_grasa_luego_musculo: ['🔶 Perder grasa → músculo',   '#fff3e0'],
+                perder_grasa:                    ['🔶 Perder grasa',                 '#fff3e0'],
+                perder_grasa_leve:               ['🟡 Definición leve',              '#fffde7'],
             };
             const [label, bg] = badges[r.fase_recomendada] || ['ℹ️ ' + r.fase_recomendada, '#f0f0f0'];
             document.getElementById('fase-badge').innerHTML =
@@ -179,19 +270,45 @@ async function cargarRecomendacion() {
     } catch (e) { console.error('recomendacion:', e); }
 }
 
-// ─── Cargar estadísticas de asistencia ──────────────────
+// ── Generar recomendación ────────────────────────────────
+async function generarRecomendacion() {
+    try {
+        const res = await fetch('/recomendaciones/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ usuario_id: parseInt(userId), imc: 0, descripcion: '' })
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            showToast('⚠️ ' + (err.detail || 'No se pudo generar la recomendación. Asegúrate de tener peso y altura en tu perfil.'));
+            return;
+        }
+        showToast('✅ Recomendación generada');
+        cargarRecomendacion();
+    } catch (e) { showToast('❌ Error al generar recomendación'); }
+}
+
+// ── Cargar asistencia ────────────────────────────────────
+let chartAsistencia = null;
 async function cargarAsistencia() {
     try {
         const res = await fetch(`/asistencias/estadisticas/${userId}`);
         if (!res.ok) return;
         const data = await res.json();
-        document.getElementById('stat-total').textContent = data.total_sesiones;
-        document.getElementById('stat-racha').textContent = data.racha_actual;
+        document.getElementById('stat-total').textContent    = data.total_sesiones;
+        document.getElementById('stat-racha').textContent    = data.racha_actual;
         document.getElementById('stat-promedio').textContent = data.promedio_semanal;
+
+        if (data.total_sesiones === 0) {
+            document.getElementById('no-asistencia').style.display = 'flex';
+            return;
+        }
+        document.getElementById('no-asistencia').style.display = 'none';
 
         const labels = Object.keys(data.por_mes);
         const values = Object.values(data.por_mes);
-        new Chart(document.getElementById('chartAsistencia'), {
+        if (chartAsistencia) chartAsistencia.destroy();
+        chartAsistencia = new Chart(document.getElementById('chartAsistencia'), {
             type: 'bar',
             data: {
                 labels,
@@ -206,17 +323,45 @@ async function cargarAsistencia() {
     } catch (e) { console.error('asistencia:', e); }
 }
 
-// ─── Cargar progreso de peso ─────────────────────────────
+// ── Registrar asistencia hoy ─────────────────────────────
+async function registrarAsistencia() {
+    const hoy = new Date().toISOString().split('T')[0];
+    try {
+        const res = await fetch('/asistencias/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ usuario_id: parseInt(userId), fecha: hoy, completada: true })
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            showToast('⚠️ ' + (err.detail || 'Error al registrar'));
+            return;
+        }
+        showToast('✅ ¡Sesión de hoy registrada! 💪');
+        cargarAsistencia();
+    } catch (e) { showToast('❌ Error al registrar asistencia'); }
+}
+
+// ── Cargar progreso ──────────────────────────────────────
+let chartProgreso = null;
 async function cargarProgreso() {
     try {
-        const res = await fetch(`/progresos/`);
+        const res = await fetch('/progresos/');
         if (!res.ok) return;
         const todos = await res.json();
-        const mios = todos.filter(p => p.usuario_id == userId);
-        if (!mios.length) return;
-        const labels = mios.map(p => p.fecha);
-        const pesos = mios.map(p => p.peso_actual);
-        new Chart(document.getElementById('chartProgreso'), {
+        const mios  = todos.filter(p => String(p.usuario_id) === String(userId));
+
+        if (!mios.length) {
+            document.getElementById('no-progreso').style.display = 'flex';
+            return;
+        }
+        document.getElementById('no-progreso').style.display = 'none';
+
+        const sorted = mios.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+        const labels = sorted.map(p => p.fecha);
+        const pesos  = sorted.map(p => p.peso_actual);
+        if (chartProgreso) chartProgreso.destroy();
+        chartProgreso = new Chart(document.getElementById('chartProgreso'), {
             type: 'line',
             data: {
                 labels,
@@ -234,7 +379,37 @@ async function cargarProgreso() {
     } catch (e) { console.error('progreso:', e); }
 }
 
-// ─── Cargar rutinas ──────────────────────────────────────
+// ── Registrar progreso ───────────────────────────────────
+async function registrarProgreso() {
+    const peso     = parseFloat(document.getElementById('prog-peso').value);
+    const reps     = parseInt(document.getElementById('prog-reps').value);
+    const duracion = parseInt(document.getElementById('prog-duracion').value);
+    const hoy      = new Date().toISOString().split('T')[0];
+
+    if (!peso || !reps || !duracion) {
+        showToast('⚠️ Completa todos los campos de progreso');
+        return;
+    }
+
+    try {
+        const res = await fetch('/progresos/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                usuario_id: parseInt(userId), fecha: hoy,
+                peso_actual: peso, repeticiones: reps, duracion
+            })
+        });
+        if (!res.ok) throw new Error();
+        document.getElementById('prog-peso').value    = '';
+        document.getElementById('prog-reps').value    = '';
+        document.getElementById('prog-duracion').value = '';
+        showToast('✅ Progreso registrado correctamente');
+        cargarProgreso();
+    } catch (e) { showToast('❌ Error al registrar progreso'); }
+}
+
+// ── Cargar rutinas ───────────────────────────────────────
 async function cargarRutinas() {
     try {
         const res = await fetch(`/rutinas_mensuales/usuario/${userId}`);
@@ -245,21 +420,32 @@ async function cargarRutinas() {
         const res2 = await fetch(`/rutinas/${rutinas[0].id}`);
         if (!res2.ok) return;
         const r = await res2.json();
-
         const ejercicios = r.ejercicios || [];
         if (!ejercicios.length) return;
 
         let html = `<table class="table is-fullwidth is-hoverable is-size-7">
-            <thead><tr><th>Ejercicio</th><th>Grupo</th><th>Series</th><th>Reps</th><th>Video</th></tr></thead><tbody>`;
+            <thead>
+                <tr>
+                    <th>Ejercicio</th>
+                    <th>Grupo Muscular</th>
+                    <th>Series</th>
+                    <th>Reps</th>
+                    <th>Duración</th>
+                    <th>Video</th>
+                </tr>
+            </thead><tbody>`;
         ejercicios.forEach(ej => {
             html += `<tr>
-                <td>${ej.nombre}</td>
-                <td>${ej.grupo_muscular}</td>
+                <td><b>${ej.nombre}</b></td>
+                <td><span style="background:#e8f4fd;color:#0095e0;padding:2px 8px;border-radius:10px;font-size:11px;">${ej.grupo_muscular}</span></td>
                 <td>${ej.series}</td>
                 <td>${ej.repeticiones}</td>
+                <td>${ej.duracion} min</td>
                 <td>${ej.video_url
-                    ? `<button class="button is-small is-link" onclick="mostrarVideo('${ej.video_url}','${ej.nombre}')"><i class="fab fa-youtube"></i></button>`
-                    : '—'}</td>
+                    ? `<button class="button is-small is-link" onclick="mostrarVideo('${ej.video_url}','${ej.nombre.replace(/'/g,"\\'")}')">
+                            <i class="fab fa-youtube"></i>
+                       </button>`
+                    : '<span style="color:#ccc;">—</span>'}</td>
             </tr>`;
         });
         html += '</tbody></table>';
@@ -267,49 +453,51 @@ async function cargarRutinas() {
     } catch (e) { console.error('rutinas:', e); }
 }
 
-// ─── Mostrar video embebido ──────────────────────────────
+// ── Mostrar video ────────────────────────────────────────
 function mostrarVideo(url, nombre) {
     const match = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
     if (!match) { window.open(url, '_blank'); return; }
-    const embed = `https://www.youtube.com/embed/${match[1]}`;
     document.getElementById('video-container').innerHTML =
         `<p style="font-size:12px;font-weight:600;margin-bottom:6px;">${nombre}</p>
-         <iframe width="100%" height="200" src="${embed}" frameborder="0" allowfullscreen style="border-radius:8px;"></iframe>`;
+         <iframe width="100%" height="200" src="https://www.youtube.com/embed/${match[1]}"
+             frameborder="0" allowfullscreen style="border-radius:8px;"></iframe>`;
 }
 
-// ─── Generar rutina mensual ──────────────────────────────
+// ── Generar rutina mensual ───────────────────────────────
 async function generarRutinaMensual() {
     const hoy = new Date();
     try {
-        const res = await fetch(`/rutinas_mensuales/generar/${userId}?mes=${hoy.getMonth()+1}&anio=${hoy.getFullYear()}`, { method: 'POST' });
+        const res = await fetch(
+            `/rutinas_mensuales/generar/${userId}?mes=${hoy.getMonth()+1}&anio=${hoy.getFullYear()}`,
+            { method: 'POST' }
+        );
         const data = await res.json();
         if (res.ok) {
-            alert(`✅ ${data.mensaje}\nNivel: ${data.nivel} | Días/semana: ${data.dias_semana}`);
+            showToast(`✅ ${data.mensaje} | Nivel: ${data.nivel} | ${data.dias_semana} días/semana`);
             cargarRutinas();
         } else {
-            alert('Error: ' + (data.detail || JSON.stringify(data)));
+            showToast('⚠️ ' + (data.detail || 'Error al generar rutina'));
         }
-    } catch (e) { alert('Error al generar rutina: ' + e.message); }
+    } catch (e) { showToast('❌ Error al generar rutina'); }
 }
 
-// ─── Solicitar subida de nivel ───────────────────────────
+// ── Solicitar subida de nivel ────────────────────────────
 async function solicitarSubidaNivel() {
     try {
-        const res = await fetch(`/rutinas_mensuales/solicitar_subida/${userId}`, { method: 'POST' });
+        const res  = await fetch(`/rutinas_mensuales/solicitar_subida/${userId}`, { method: 'POST' });
         const data = await res.json();
-        alert(data.mensaje);
+        showToast(data.aprobado ? `🎉 ${data.mensaje}` : `ℹ️ ${data.mensaje}`);
         if (data.aprobado) cargarPerfil();
-    } catch (e) { alert('Error: ' + e.message); }
+    } catch (e) { showToast('❌ Error al solicitar subida'); }
 }
 
-// ─── Cerrar sesión ───────────────────────────────────────
+// ── Cerrar sesión ────────────────────────────────────────
 function cerrarSesion() {
-    localStorage.removeItem('user_id');
-    localStorage.removeItem('nombre');
+    localStorage.clear();
     window.location.href = '/login';
 }
 
-// ─── Init ────────────────────────────────────────────────
+// ── Init ─────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     cargarPerfil();
     cargarRecomendacion();

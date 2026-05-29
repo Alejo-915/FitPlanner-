@@ -16,6 +16,7 @@ from routes.auth import router as auth_router
 from routes.pages import router as pages_router
 from routes.asistencia import router as asistencia_router
 from routes.rutina_mensual import router as rutina_mensual_router
+from routes.objetivo import router as objetivo_router        # ← NUEVO
 
 app = FastAPI(
     title="FitPlanner API",
@@ -42,6 +43,7 @@ app.include_router(progreso_router)
 app.include_router(recomendacion_router)
 app.include_router(asistencia_router)
 app.include_router(rutina_mensual_router)
+app.include_router(objetivo_router)                         # ← NUEVO
 app.include_router(pages_router)
 
 

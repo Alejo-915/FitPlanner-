@@ -6,8 +6,36 @@
     <title>Admin Dashboard - FitPlanner</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../../static/css/main.css">
-    <link rel="stylesheet" href="../../static/css/dashboard.css">
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <style>
+        .admin-stat-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-mini {
+            background: white;
+            border-radius: 12px;
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .stat-mini-icon {
+            width: 44px; height: 44px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+        }
+        .stat-mini-info span { display: block; font-size: 12px; color: #7D89A1; }
+        .stat-mini-info b { font-size: 1.5rem; color: #273348; }
+        @media (max-width: 768px) {
+            .admin-stat-bar { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
 </head>
 <body>
 
@@ -16,19 +44,43 @@
         <div class="nav-brand">
             <i class="fas fa-shield-alt"></i> ADMIN PANEL
         </div>
-        <div class="nav-user">
+        <div class="nav-user" style="display:flex;align-items:center;gap:10px;">
             <span>Administrador</span>
-            <div class="image is-32x32">
-                <img class="is-rounded" src="https://ui-avatars.com/api/?name=Admin&background=273348&color=fff" alt="Admin">
-            </div>
+            <img class="is-rounded"
+                 src="https://ui-avatars.com/api/?name=Admin&background=273348&color=fff"
+                 alt="Admin" style="width:32px;height:32px;border-radius:50%;">
+            <a href="/login" onclick="localStorage.clear();"
+               style="background:rgba(255,255,255,0.15);border:none;color:white;padding:6px 12px;border-radius:6px;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </a>
         </div>
     </nav>
 
     <div class="dashboard-container">
-        <h1 class="title is-3 has-text-dark mb-6">Gestión de la Plataforma</h1>
+        <h1 class="title is-3 has-text-dark mb-4">Gestión de la Plataforma</h1>
+
+        <!-- Stats rápidas -->
+        <div class="admin-stat-bar" id="admin-stats">
+            <div class="stat-mini">
+                <div class="stat-mini-icon" style="background:#fde8e8;"><i class="fas fa-users" style="color:#E30005;"></i></div>
+                <div class="stat-mini-info"><span>Usuarios</span><b id="cnt-usuarios">—</b></div>
+            </div>
+            <div class="stat-mini">
+                <div class="stat-mini-icon" style="background:#e8f4fd;"><i class="fas fa-dumbbell" style="color:#0095e0;"></i></div>
+                <div class="stat-mini-info"><span>Ejercicios</span><b id="cnt-ejercicios">—</b></div>
+            </div>
+            <div class="stat-mini">
+                <div class="stat-mini-icon" style="background:#fff8e1;"><i class="fas fa-clipboard-list" style="color:#FFD700;"></i></div>
+                <div class="stat-mini-info"><span>Rutinas</span><b id="cnt-rutinas">—</b></div>
+            </div>
+            <div class="stat-mini">
+                <div class="stat-mini-icon" style="background:#e8f8e8;"><i class="fas fa-bullseye" style="color:#2d6a4f;"></i></div>
+                <div class="stat-mini-info"><span>Objetivos</span><b id="cnt-objetivos">—</b></div>
+            </div>
+        </div>
 
         <div class="columns is-multiline">
-            
+
             <!-- CRUD Usuarios -->
             <div class="column is-6-desktop is-12-tablet">
                 <div class="bento-card" style="border-left: 4px solid var(--primary-red);">
@@ -40,7 +92,7 @@
                         Administra los usuarios registrados, sus perfiles y estados de cuenta.
                     </p>
                     <div class="buttons is-right mt-auto">
-                        <a href="/admin/usuarios" target="_blank" class="button is-small is-link is-light">
+                        <a href="/admin/usuarios" class="button is-small is-link is-light">
                             <span class="icon"><i class="fas fa-external-link-alt"></i></span>
                             <span>Gestionar Usuarios</span>
                         </a>
@@ -50,16 +102,16 @@
 
             <!-- CRUD Ejercicios -->
             <div class="column is-6-desktop is-12-tablet">
-                <div class="bento-card" style="border-left: 4px solid var(--primary-green);">
+                <div class="bento-card" style="border-left: 4px solid #0095e0;">
                     <h3 class="bento-title">
                         Ejercicios
-                        <i class="fas fa-dumbbell fa-lg" style="color: var(--primary-green);"></i>
+                        <i class="fas fa-dumbbell fa-lg" style="color: #0095e0;"></i>
                     </h3>
                     <p class="content is-small has-text-grey">
                         Catálogo completo de ejercicios, grupos musculares y equipamiento necesario.
                     </p>
                     <div class="buttons is-right mt-auto">
-                        <a href="/admin/ejercicios" target="_blank" class="button is-small is-link is-light">
+                        <a href="/admin/ejercicios" class="button is-small is-link is-light">
                             <span class="icon"><i class="fas fa-external-link-alt"></i></span>
                             <span>Gestionar Ejercicios</span>
                         </a>
@@ -78,7 +130,7 @@
                         Creación y asignación de rutinas de entrenamiento personalizadas.
                     </p>
                     <div class="buttons is-right mt-auto">
-                        <a href="/admin/rutinas" target="_blank" class="button is-small is-link is-light">
+                        <a href="/admin/rutinas" class="button is-small is-link is-light">
                             <span class="icon"><i class="fas fa-external-link-alt"></i></span>
                             <span>Gestionar Rutinas</span>
                         </a>
@@ -88,16 +140,16 @@
 
             <!-- CRUD Objetivos -->
             <div class="column is-6-desktop is-12-tablet">
-                <div class="bento-card" style="border-left: 4px solid var(--blue-gray);">
+                <div class="bento-card" style="border-left: 4px solid #2d6a4f;">
                     <h3 class="bento-title">
                         Objetivos
-                        <i class="fas fa-bullseye fa-lg" style="color: var(--blue-gray);"></i>
+                        <i class="fas fa-bullseye fa-lg" style="color: #2d6a4f;"></i>
                     </h3>
                     <p class="content is-small has-text-grey">
-                        Define los objetivos de fitness disponibles para los usuarios (ej: Perder peso, Ganar masa).
+                        Define los objetivos de fitness disponibles para los usuarios (Bajar de peso, Ganar masa, etc.).
                     </p>
                     <div class="buttons is-right mt-auto">
-                        <a href="/admin/objetivos" target="_blank" class="button is-small is-link is-light">
+                        <a href="/admin/objetivos" class="button is-small is-link is-light">
                             <span class="icon"><i class="fas fa-external-link-alt"></i></span>
                             <span>Gestionar Objetivos</span>
                         </a>
@@ -108,5 +160,28 @@
         </div>
     </div>
 
+<script>
+// Cargar conteos reales
+async function cargarStats() {
+    try {
+        const [us, ej, rt, obj] = await Promise.allSettled([
+            fetch('/usuarios/').then(r => r.json()),
+            fetch('/ejercicios/').then(r => r.json()),
+            fetch('/rutinas/').then(r => r.json()),
+            fetch('/objetivos/').then(r => r.json()),
+        ]);
+        document.getElementById('cnt-usuarios').textContent  =
+            us.status  === 'fulfilled' ? (Array.isArray(us.value)  ? us.value.length  : '—') : '—';
+        document.getElementById('cnt-ejercicios').textContent =
+            ej.status  === 'fulfilled' ? (Array.isArray(ej.value)  ? ej.value.length  : '—') : '—';
+        document.getElementById('cnt-rutinas').textContent   =
+            rt.status  === 'fulfilled' ? (rt.value.rutinas ? rt.value.rutinas.length : '—') : '—';
+        document.getElementById('cnt-objetivos').textContent =
+            obj.status === 'fulfilled' ? (Array.isArray(obj.value) ? obj.value.length : '—') : '—';
+    } catch (_) {}
+}
+
+document.addEventListener('DOMContentLoaded', cargarStats);
+</script>
 </body>
 </html>

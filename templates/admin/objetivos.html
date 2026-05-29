@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Objetivos - FitPlanner</title>
+    <link href="https://cdn.datatables.net/v/dt/dt-2.3.5/b-3.2.5/b-colvis-3.2.5/b-html5-3.2.5/b-print-3.2.5/r-3.0.7/datatables.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/stock-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .objetivo-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #e8f4fd;
+            color: #0095e0;
+            border: 1px solid #b3d9f5;
+        }
+        .btn-volver {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: #273348;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            margin-bottom: 16px;
+        }
+        .btn-volver:hover { background: #1a2230; color: white; }
+        #modal-crear-objetivo { display: none; }
+        .modal-crear-body {
+            background: white;
+            border-radius: 15px;
+            padding: 32px;
+            width: 500px;
+            max-width: 95vw;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .modal-crear-body h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #273348;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #0095e0;
+        }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #273348; margin-bottom: 6px; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: 10px 12px; border: 1px solid #ddd;
+            border-radius: 6px; font-size: 14px; box-sizing: border-box;
+        }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .btn-crear-submit {
+            background: #0095e0; color: white; border: none;
+            padding: 12px 24px; border-radius: 6px; cursor: pointer;
+            font-size: 14px; font-weight: 600; width: 100%; margin-top: 8px;
+        }
+        .btn-crear-submit:hover { background: #007bb5; }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 9999;
+            display: none; align-items: center; justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-header-crear {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+        }
+        .btn-close-x {
+            background: none; border: none; font-size: 20px; cursor: pointer; color: #999; padding: 4px;
+        }
+        .btn-close-x:hover { color: #333; }
+    </style>
+</head>
+<body>
+<section id="stock-container-section">
+    <article class="stock-container-article">
+        <a href="/home/admin" class="btn-volver">
+            <i class="fas fa-arrow-left"></i> Volver al panel
+        </a>
+        <h2 id="h2">GESTIÓN DE OBJETIVOS</h2>
+        <br>
+        <button id="btn-crear-objetivo" class="button is-primary mb-4">
+            <span class="icon"><i class="fas fa-plus"></i></span>
+            <span>Agregar Nuevo Objetivo</span>
+        </button>
+        <br><br>
+        <table id="tabla-objetivos" class="display table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Descripción</th>
+                    <th>Imagen URL</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </article>
+</section>
+
+<!-- Modal CREAR -->
+<div id="modal-crear-overlay" class="modal-overlay">
+    <div class="modal-crear-body">
+        <div class="modal-header-crear">
+            <h3><i class="fas fa-bullseye" style="color:#0095e0;margin-right:8px;"></i>Nuevo Objetivo</h3>
+            <button class="btn-close-x" id="btn-cerrar-modal-crear">✕</button>
+        </div>
+        <form id="form-crear-objetivo">
+            <div class="form-group">
+                <label>Título <span style="color:#E30005;">*</span></label>
+                <input type="text" id="nuevo-titulo" placeholder="Ej: Bajar de peso" required>
+            </div>
+            <div class="form-group">
+                <label>Descripción <span style="color:#E30005;">*</span></label>
+                <textarea id="nuevo-descripcion" placeholder="Describe este objetivo de fitness..." required></textarea>
+            </div>
+            <div class="form-group">
+                <label>URL de Imagen <span style="color:#999;font-weight:400;">(opcional)</span></label>
+                <input type="url" id="nuevo-imagen-url" placeholder="https://...">
+            </div>
+            <button type="submit" class="btn-crear-submit">
+                <i class="fas fa-save"></i> Crear Objetivo
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal EDITAR -->
+<div id="modal-editar-overlay" class="modal-overlay">
+    <div class="modal-crear-body">
+        <div class="modal-header-crear">
+            <h3><i class="fas fa-edit" style="color:#0095e0;margin-right:8px;"></i>Editar Objetivo</h3>
+            <button class="btn-close-x" id="btn-cerrar-modal-editar">✕</button>
+        </div>
+        <form id="form-editar-objetivo">
+            <input type="hidden" id="editar-id">
+            <div class="form-group">
+                <label>Título <span style="color:#E30005;">*</span></label>
+                <input type="text" id="editar-titulo" required>
+            </div>
+            <div class="form-group">
+                <label>Descripción <span style="color:#E30005;">*</span></label>
+                <textarea id="editar-descripcion" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>URL de Imagen</label>
+                <input type="url" id="editar-imagen-url">
+            </div>
+            <button type="submit" class="btn-crear-submit" style="background:#273348;">
+                <i class="fas fa-save"></i> Guardar Cambios
+            </button>
+        </form>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/v/dt/dt-2.3.5/b-3.2.5/b-colvis-3.2.5/b-html5-3.2.5/b-print-3.2.5/r-3.0.7/datatables.min.js"></script>
+<script>
+let tablaObjetivos;
+
+// ── Seed de objetivos por defecto si no hay ninguno ────────
+const OBJETIVOS_DEFAULT = [
+    { titulo: 'Bajar de peso',       descripcion: 'Reducir el peso corporal mediante ejercicio cardiovascular y déficit calórico moderado.', imagen_url: null },
+    { titulo: 'Ganar masa muscular', descripcion: 'Aumentar el volumen y fuerza muscular mediante entrenamiento de resistencia y alta ingesta proteica.', imagen_url: null },
+    { titulo: 'Mantener forma',      descripcion: 'Conservar el estado físico actual con entrenamientos equilibrados de fuerza y cardio.', imagen_url: null },
+    { titulo: 'Mejorar resistencia', descripcion: 'Aumentar la capacidad cardiovascular y resistencia aeróbica con entrenamientos progresivos.', imagen_url: null },
+    { titulo: 'Perder grasa',        descripcion: 'Reducir el porcentaje de grasa corporal manteniendo la masa muscular existente.', imagen_url: null },
+];
+
+async function seedObjetivosDefault() {
+    try {
+        const res = await fetch('/objetivos/');
+        if (!res.ok) return;
+        const lista = await res.json();
+        if (lista.length === 0) {
+            for (const obj of OBJETIVOS_DEFAULT) {
+                await fetch('/objetivos/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(obj)
+                });
+            }
+            tablaObjetivos.ajax.reload(null, false);
+        }
+    } catch (_) {}
+}
+
+$(document).ready(function () {
+    tablaObjetivos = $('#tabla-objetivos').DataTable({
+        ajax: {
+            url: '/objetivos/',
+            dataSrc: '',
+            error: (xhr) => {
+                console.warn('Endpoint /objetivos/ no disponible:', xhr.status);
+                // Mostrar tabla vacía si el endpoint no existe aún
+            }
+        },
+        columns: [
+            { data: 'id' },
+            {
+                data: 'titulo',
+                render: (d) => `<span class="objetivo-badge">${d}</span>`
+            },
+            { data: 'descripcion' },
+            {
+                data: 'imagen_url',
+                render: (d) => d
+                    ? `<a href="${d}" target="_blank" style="color:#0095e0;font-size:12px;"><i class="fas fa-image"></i> Ver imagen</a>`
+                    : '<span style="color:#999;font-size:12px;">Sin imagen</span>'
+            },
+            {
+                data: null, orderable: false,
+                render: (_, __, row) => `
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-danger" onclick="eliminarObjetivo(${row.id})">🗑️</button>
+                        <button class="btn btn-sm btn-info" onclick="abrirEditar(${row.id}, '${encodeURIComponent(row.titulo)}', '${encodeURIComponent(row.descripcion)}', '${row.imagen_url || ''}')">✏️</button>
+                    </div>`
+            }
+        ],
+        dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>><'row'<'col-sm-12'B>>",
+        buttons: [
+            { extend: 'excel', text: 'Excel', className: 'btn btn-success' },
+            { extend: 'csv',   text: 'CSV',   className: 'btn btn-info' },
+            { extend: 'pdf',   text: 'PDF',   className: 'btn btn-danger' },
+            { extend: 'print', text: 'Imprimir', className: 'btn btn-warning' },
+        ],
+        language: { info: '_START_ a _END_ de _TOTAL_ objetivos', search: 'Buscar:', lengthMenu: 'Mostrar _MENU_ por página' },
+        drawCallback: () => { if (tablaObjetivos.data().count() === 0) seedObjetivosDefault(); }
+    });
+
+    // Abrir modal crear
+    document.getElementById('btn-crear-objetivo').addEventListener('click', () => {
+        document.getElementById('form-crear-objetivo').reset();
+        document.getElementById('modal-crear-overlay').classList.add('active');
+    });
+
+    // Cerrar modales
+    document.getElementById('btn-cerrar-modal-crear').addEventListener('click', () =>
+        document.getElementById('modal-crear-overlay').classList.remove('active'));
+    document.getElementById('btn-cerrar-modal-editar').addEventListener('click', () =>
+        document.getElementById('modal-editar-overlay').classList.remove('active'));
+    window.addEventListener('click', e => {
+        if (e.target === document.getElementById('modal-crear-overlay'))
+            document.getElementById('modal-crear-overlay').classList.remove('active');
+        if (e.target === document.getElementById('modal-editar-overlay'))
+            document.getElementById('modal-editar-overlay').classList.remove('active');
+    });
+
+    // Crear objetivo
+    document.getElementById('form-crear-objetivo').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            titulo:      document.getElementById('nuevo-titulo').value.trim(),
+            descripcion: document.getElementById('nuevo-descripcion').value.trim(),
+            imagen_url:  document.getElementById('nuevo-imagen-url').value.trim() || null,
+        };
+        try {
+            const res = await fetch('/objetivos/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            document.getElementById('modal-crear-overlay').classList.remove('active');
+            tablaObjetivos.ajax.reload(null, false);
+            showToast('✅ Objetivo creado correctamente');
+        } catch (err) { alert('Error al crear objetivo: ' + err.message); }
+    });
+
+    // Editar objetivo
+    document.getElementById('form-editar-objetivo').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('editar-id').value;
+        const payload = {
+            titulo:      document.getElementById('editar-titulo').value.trim(),
+            descripcion: document.getElementById('editar-descripcion').value.trim(),
+            imagen_url:  document.getElementById('editar-imagen-url').value.trim() || null,
+        };
+        try {
+            const res = await fetch(`/objetivos/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            document.getElementById('modal-editar-overlay').classList.remove('active');
+            tablaObjetivos.ajax.reload(null, false);
+            showToast('✅ Objetivo actualizado correctamente');
+        } catch (err) { alert('Error al actualizar: ' + err.message); }
+    });
+});
+
+window.abrirEditar = (id, titulo, descripcion, imagenUrl) => {
+    document.getElementById('editar-id').value          = id;
+    document.getElementById('editar-titulo').value      = decodeURIComponent(titulo);
+    document.getElementById('editar-descripcion').value = decodeURIComponent(descripcion);
+    document.getElementById('editar-imagen-url').value  = imagenUrl || '';
+    document.getElementById('modal-editar-overlay').classList.add('active');
+};
+
+window.eliminarObjetivo = async (id) => {
+    if (!confirm('¿Eliminar este objetivo?')) return;
+    try {
+        const res = await fetch(`/objetivos/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        tablaObjetivos.ajax.reload(null, false);
+        showToast('🗑️ Objetivo eliminado');
+    } catch (err) { alert('Error: ' + err.message); }
+};
+
+function showToast(msg) {
+    const t = document.createElement('div');
+    t.textContent = msg;
+    t.style.cssText = `
+        position:fixed; bottom:24px; right:24px; background:#273348; color:white;
+        padding:12px 20px; border-radius:8px; font-size:14px; z-index:99999;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: fadeIn 0.3s ease;
+    `;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+}
+</script>
+</body>
+</html>
