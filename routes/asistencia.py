@@ -14,6 +14,9 @@ def registrar_asistencia(asistencia: Asistencia, session: Session = Depends(get_
     usuario = session.get(Usuario, asistencia.usuario_id)
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    # Convertir fecha string a objeto date si es necesario
+    if isinstance(asistencia.fecha, str):
+        asistencia.fecha = date.fromisoformat(asistencia.fecha)
     session.add(asistencia)
     session.commit()
     session.refresh(asistencia)
@@ -29,13 +32,6 @@ def listar_asistencias_usuario(usuario_id: int, session: Session = Depends(get_s
 
 @router.get("/estadisticas/{usuario_id}")
 def estadisticas_asistencia(usuario_id: int, session: Session = Depends(get_session)):
-    """
-    Devuelve estadísticas de asistencia para gráficas:
-    - asistencias por mes (últimos 6 meses)
-    - racha actual (días consecutivos)
-    - total de sesiones
-    - promedio semanal
-    """
     asistencias = session.exec(
         select(Asistencia).where(Asistencia.usuario_id == usuario_id)
     ).all()
