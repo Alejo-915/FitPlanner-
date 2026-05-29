@@ -10,14 +10,10 @@ router = APIRouter(prefix="/rutinas", tags=["Rutinas"])
 def crear_rutina(rutina: Rutina, session: Session = Depends(get_session)):
     if not rutina.nombre or not rutina.usuario_id:
         raise HTTPException(status_code=400, detail="Debe incluir nombre y usuario_id")
-
     session.add(rutina)
     session.commit()
     session.refresh(rutina)
-    return {
-        "mensaje": "Rutina creada exitosamente",
-        "rutina": rutina
-    }
+    return {"mensaje": "Rutina creada exitosamente", "rutina": rutina}
 
 
 # ✅ Listar todas las rutinas con sus ejercicios y parámetros
@@ -40,9 +36,14 @@ def listar_rutinas_con_ejercicios(session: Session = Depends(get_session)):
                 "id": ej.id,
                 "nombre": ej.nombre,
                 "grupo_muscular": ej.grupo_muscular,
+                "equipo": ej.equipo,
+                "dificultad": ej.dificultad,
                 "series": re.series,
                 "repeticiones": re.repeticiones,
-                "duracion": re.duracion
+                "duracion": re.duracion,
+                "carga_kg": re.carga_kg,
+                "semana": re.semana,
+                "video_url": ej.video_url,        # ← CORREGIDO
             }
             for re, ej in relaciones
         ]
@@ -53,7 +54,9 @@ def listar_rutinas_con_ejercicios(session: Session = Depends(get_session)):
             "nivel": rutina.nivel,
             "frecuencia": rutina.frecuencia,
             "usuario_id": rutina.usuario_id,
-            "ejercicios": ejercicios_info
+            "mes": rutina.mes,
+            "anio": rutina.anio,
+            "ejercicios": ejercicios_info,
         })
 
     return {"rutinas": resultado}
@@ -77,9 +80,14 @@ def obtener_rutina_por_id(rutina_id: int, session: Session = Depends(get_session
             "id": ej.id,
             "nombre": ej.nombre,
             "grupo_muscular": ej.grupo_muscular,
+            "equipo": ej.equipo,
+            "dificultad": ej.dificultad,
             "series": re.series,
             "repeticiones": re.repeticiones,
-            "duracion": re.duracion
+            "duracion": re.duracion,
+            "carga_kg": re.carga_kg,
+            "semana": re.semana,
+            "video_url": ej.video_url,            # ← CORREGIDO
         }
         for re, ej in relaciones
     ]
@@ -90,8 +98,11 @@ def obtener_rutina_por_id(rutina_id: int, session: Session = Depends(get_session
         "nivel": rutina.nivel,
         "frecuencia": rutina.frecuencia,
         "usuario_id": rutina.usuario_id,
-        "ejercicios": ejercicios_info
+        "mes": rutina.mes,
+        "anio": rutina.anio,
+        "ejercicios": ejercicios_info,
     }
+
 
 @router.patch("/{id}")
 def actualizar_rutina(id: int, datos: Rutina, session: Session = Depends(get_session)):
@@ -104,6 +115,7 @@ def actualizar_rutina(id: int, datos: Rutina, session: Session = Depends(get_ses
     session.commit()
     session.refresh(rutina)
     return rutina
+
 
 @router.delete("/{id}")
 def eliminar_rutina(id: int, session: Session = Depends(get_session)):

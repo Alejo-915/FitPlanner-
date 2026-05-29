@@ -7,8 +7,7 @@ router = APIRouter()
 
 @router.get("/")
 def root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
+   return templates.TemplateResponse("index.html", {"request": request})
 
 @router.get("/home")
 def home(request: Request):
